@@ -11,6 +11,7 @@ import com.myxiaoapp.network.SingleAsyncClient;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,8 +42,7 @@ public class RegisterVerifyActivity extends CommonActivity implements OnClickLis
 	}
 	private void init(){
 		mApp.addLaunchActivity(this);
-		phoneNumber = (EditText)findViewById(R.id.phonenumber_input);
-		phoneNumber.setText("10086");
+		phoneNumber = (EditText)findViewById(R.id.phonenumber_input); 
 		registerNext = (Button)findViewById(R.id.register_next);
 		registerNext.setOnClickListener(this);
 	
@@ -83,6 +83,7 @@ public class RegisterVerifyActivity extends CommonActivity implements OnClickLis
 				@Override
 				public void onReceive() {
 					String errno = responseHandler.getErrno();
+					Log.d("mydebug", responseHandler.getResponseBody().toString());
 					if(errno.equals("20")){
 						RegisterInfo.setPhone(phone);
 						Intent intent = new Intent(RegisterVerifyActivity.this,RegisterInputVerifyActivity.class);

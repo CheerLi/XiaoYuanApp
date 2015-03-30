@@ -62,8 +62,9 @@ public class HttpRequestParams {
 		registerParams.put("school_code", RegisterInfo.getSchoolCode());
 		registerParams.put("sex", RegisterInfo.getSex());
 		registerParams.put("phone", RegisterInfo.getPhone());
-		registerParams.put("username", RegisterInfo.getUsername());
+		registerParams.put("username", RegisterInfo.getPhone());
 		registerParams.put("password", RegisterInfo.getPassword());
+		registerParams.put("nickname", RegisterInfo.getNickname());
 
 		String sign = getSignByMd5(registerParams);
 		registerParams.put("sign", sign);

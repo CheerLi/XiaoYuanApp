@@ -16,14 +16,16 @@ public class RegisterInfo {
 	static private String phone;//手机号
 	static private String username;//用户名
 	static private String password;//密码
+	static private String nickname;//昵称
 	public static void setSchoolCode(int mSchoolCode){
 		schoolCode = mSchoolCode;
 	}
-	public static void setDetail(String mPicturePath, int mSex, String mUsername, String mPassword){
+	public static void setDetail(String mPicturePath, int mSex, String mUsername, String mPassword,String mNickname){
 		picturePath = mPicturePath;
 		sex = mSex;
 		username = mUsername;
 		password = mPassword;
+		nickname = mNickname;
 	}
 	public static void setPhone(String mPhone){
 		phone = mPhone;
@@ -46,7 +48,9 @@ public class RegisterInfo {
 	public static String getPassword(){
 		return password;
 	}
-	
+	public static String getNickname(){
+		return nickname;
+	}
 	public static void recycle(){
 		schoolCode = 0;
 		picturePath = null;
@@ -54,5 +58,6 @@ public class RegisterInfo {
 		phone = null;
 		username = null;
 		password = null;
+		nickname = null;
 	}
 }

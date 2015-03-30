@@ -97,7 +97,7 @@ public class CampusNewsActivity extends CommonActivity implements
 		mPullToRefreshListView.setOnRefreshListener(refreshListener);
 		mNewsList = mPullToRefreshListView.getRefreshableView();
 		mNewsList.setAdapter(new CampusNewsAdapter(this));
-
+	//	mNewsList.setAdapter(new CampusNewsAdapter(this,));
 	}
 
 	private OnRefreshListener<ListView> refreshListener = new OnRefreshListener<ListView>() {

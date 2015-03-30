@@ -10,6 +10,8 @@ import org.apache.http.Header;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.myxiaoapp.listener.OnResponseListener;
 
@@ -25,9 +27,7 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 	/*
 	 * 以下三个为responseBody里面的数据
 	 */
-	private String errno; // 返回json数据里面的状态码，如20成功，40失败
-	private String message;
-	private Object data; // JSONObject or JSONArray
+	private String errno; // 返回json数据里面的状态码，如20成功，40失败 
  
 
 	private String charSet = "UTF-8";
@@ -72,8 +72,9 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 		String rec = null;
 		try {
 			rec = new String(responseBody,"UTF-8");
-			this.errno = new JSONObject(rec).getString("errno");  
-			this.data =  new JSONObject(rec).get("data");
+			Log.d("mydebug",rec);
+			JSONObject jo = new JSONObject(rec);
+			this.errno = jo.getString("errno"); 
 		} catch (UnsupportedEncodingException e) {
 			
 			e.printStackTrace();
@@ -120,10 +121,7 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 	public String getErrno(){
 		
 		return this.errno;
-	}
-	public Object getData(){
-		return data;
-	}
+	} 
 	public String getValue(JSONObject jo,String key){
 		try {
 			return jo.getString(key);

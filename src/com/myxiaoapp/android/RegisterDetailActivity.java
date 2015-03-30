@@ -147,7 +147,7 @@ public class RegisterDetailActivity extends CommonActivity implements
 				int sex = RegisterInfo.getSex(); // 性别x
 				String usr = username.getText().toString();// 用户名
 				String pwd = password.getText().toString(); // 密码
-				RegisterInfo.setDetail(headPhotUri, sex, usr, pwd);// 把注册信息加载到静态注册信息类中
+				RegisterInfo.setDetail(headPhotUri, sex, RegisterInfo.getPhone(), pwd,usr);// 把注册信息加载到静态注册信息类中
 
 				RegisterHandler handler = new RegisterHandler(
 						RegisterDetailActivity.this);

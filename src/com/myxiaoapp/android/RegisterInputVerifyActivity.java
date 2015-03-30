@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -64,11 +65,16 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 
 			@Override
 			public void onReceive() {
-				errno = responseHandler.getErrno();
+				errno = responseHandler.getErrno(); 
 				if(errno.equals("20")){
-					try {
-						code = responseHandler.getValue(new JSONObject(responseHandler.getData().toString()), "code");
+					try { 
+						JSONObject jo = new JSONObject(new String(responseHandler.getResponseBody(),"UTF-8"));
+						Log.d("mydebug1", jo.toString());
+						code = responseHandler.getValue(jo, "code");
 					} catch (JSONException e) {
+						
+						e.printStackTrace();
+					} catch (UnsupportedEncodingException e) {
 						
 						e.printStackTrace();
 					}
@@ -76,8 +82,7 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 			}
 			
 		});
-		client.post(url, HttpRequestParams.getVerifyParams(phone),
-				responseHandler);
+		client.post(url, HttpRequestParams.getVerifyParams(phone),responseHandler);
 	}
 	private void init() {
 		mActionBar = getSupportActionBar();
@@ -90,6 +95,8 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 	}
 
 	private boolean checkCode() {
+		if(code == null) return false;
+		
 		if(code.equals(verify_code.getText().toString()))
 			return true;
 		else if(code.equals("45")){

@@ -19,16 +19,16 @@ public class MomentBean{
 	public String m_time;
 	public String m_collectnum;
 	public String m_commentnum;
-//	public String m_transpondnum;
+	public String m_transpondnum;
 	public String m_likesnum;
 	public String m_readnum;
 	public String m_label;
 	public String user_id;
-	public String is_del;
-	public String is_close;
+//	public String is_del;
+//	public String is_close;
 
-	// public List<?> comment_list;
-	// public List<?> likes_list;
+	public List<?> comment_list;
+	public List<?> likes_list;
 	
 	
 	
@@ -41,7 +41,7 @@ public class MomentBean{
 				+ m_collectnum + ", m_commentnum=" + m_commentnum
 				+ ", m_likesnum=" + m_likesnum + ", m_readnum=" + m_readnum
 				+ ", m_label=" + m_label + ", user_id=" + user_id + ", is_del="
-				+ is_del + ", is_close=" + is_close + "]";
+				+ comment_list.toString() + ", is_close=" + likes_list.toString() + "]";
 	}
 
 }

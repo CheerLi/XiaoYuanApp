@@ -4,6 +4,7 @@
  */
 package com.myxiaoapp.network;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +103,13 @@ public class CampusCircle extends AsyncHttpPost {
 	 */
 	@Override
 	public void onReceive() {
-		String rec = new String(responseHandler.getResponseBody());
+		String rec = null;
+		try {
+			rec = new String(responseHandler.getResponseBody(),"UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			
+			e1.printStackTrace();
+		}
 		Log.i(TAG, CONSTANTLOG + "成功获取数据");
 		Log.d(TAG, rec);
 		
