@@ -40,6 +40,7 @@ public class JSONHelper {
 
 	/**
 	 * 第一次传入JSONObject
+	 * 
 	 * @param json
 	 * @param cls
 	 * @return

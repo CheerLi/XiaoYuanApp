@@ -9,7 +9,7 @@ public class AddNewFriendActivity extends CommonActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_new_friend);
 		setActionBarTitle("添加关注");
-		
+
 	}
 
 }

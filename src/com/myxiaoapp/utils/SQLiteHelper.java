@@ -51,7 +51,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
 	private static String getDBName(Context context) {
 		User loginUser = XiaoYuanApp.getLoginUser(context);
-		return loginUser.userBean.uid + ".db";
+		return loginUser.userBean.getUid() + ".db";
 	}
 
 }

@@ -71,14 +71,14 @@ public class CourseTableActivity extends CommonActivity implements
 				android.R.layout.simple_spinner_dropdown_item);
 		mWeekSpinner.setAdapter(mSpinnerAdapter);
 		mWeekSpinner.setOnItemSelectedListener(this);
-//		addCustomView(mWeekSpinner);
+		// addCustomView(mWeekSpinner);
 		mWeekList = getResources().getStringArray(R.array.week_list);
 	}
 
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
-		((TextView)view).setTextColor(Color.WHITE);
+		((TextView) view).setTextColor(Color.WHITE);
 		Toast.makeText(this, mWeekList[position], Toast.LENGTH_SHORT).show();
 	}
 

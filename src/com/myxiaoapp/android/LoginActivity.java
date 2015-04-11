@@ -4,6 +4,9 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,10 +25,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.UserBean;
-import com.myxiaoapp.network.LoginRequest;
-import com.myxiaoapp.network.UpdateLocation;
+import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.JSONHelper;
 import com.myxiaoapp.utils.LocationHelper;
 import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
 
@@ -42,21 +46,20 @@ import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
  */
 
 public class LoginActivity extends BaseActivity implements OnClickListener,
-		OnTouchListener {
+		OnTouchListener, OnResponseListener {
 
-	  private static final String TAG = "mydebug";
-	  private static final int WHAT_LOGIN_FAILURE = 2;
-	  private static final int WHAT_LOGIN_SUCCESS = 1;
-	  private TextView forgetPassword;
-	  private LoginHandler loginHandler;
-	  private XiaoYuanApp mApp;
-	  private Context mContext;
-	  private LinearLayout mInputLayout;
-	  private Button mLoginSubmit;
-	  private ScrollView mScrollView;
-	  private EditText password;
-	  private TextView register;
-	  private EditText username;
+	private static final String TAG = "mydebug";
+	private static final int WHAT_LOGIN_FAILURE = 2;
+	private static final int WHAT_LOGIN_SUCCESS = 1;
+	private TextView forgetPassword;
+	private XiaoYuanApp mApp;
+	private Context mContext;
+//	private LinearLayout mInputLayout;
+	private Button mLoginSubmit;
+	private ScrollView mScrollView;
+	private EditText password;
+	private TextView register;
+	private EditText username;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +78,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
 		mContext = this;
 		mApp = (XiaoYuanApp) getApplication();
-		loginHandler = new LoginHandler(this);
-
-		mInputLayout = (LinearLayout) findViewById(R.id.inputLayout);
+//		mInputLayout = (LinearLayout) findViewById(R.id.inputLayout);
 
 		mScrollView = (ScrollView) findViewById(R.id.scrollview);
 
@@ -127,7 +128,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 		// fansList.post();
 
 		// 6.关注朋友
-		// FocusFriends focusFriends = new FocusFriends(this, "10001", "10002");
+	/*	// FocusFriends focusFriends = new FocusFriends(this, "10001", "10002");
 		// focusFriends.post();
 
 		// 7.关注列表
@@ -151,20 +152,17 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 		// ShiledFriends shiledFriends = new ShiledFriends(this, "10001",
 		// "10002");
 		// shiledFriends.post();
-
+*/
 		// 12.回传更新地理位置
-		LocationHelper locationHelper = new LocationHelper(this);
+/*		LocationHelper locationHelper = new LocationHelper(this);
 		locationHelper.getLocation(new GetLocationListener() {
 
 			@Override
 			public void location(double latitude, double longitude) {
-				UpdateLocation updateLocation = new UpdateLocation(
-						LoginActivity.this, "10001", latitude + "", longitude
-								+ "");
-				updateLocation.post();
+				new AsyncHttpPost("Backstate", LoginActivity.this,XiaoYuanApp.getLoginUser(LoginActivity.this).userBean.getUid(), latitude + "", longitude+ "").post();
 			}
 		});
-
+*/		 
 		// 13.上传校园圈信息
 		// String[] path = new String[2];
 		// path[0]=Environment.getExternalStorageDirectory()+"/test.jpg";
@@ -193,7 +191,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
 	protected void loginSubmit() {
 		if (check()) {
-		    new LoginRequest(this, this.username.getText().toString(), this.password.getText().toString(), this.loginHandler).post();
+			new AsyncHttpPost("login", this,
+					this.username.getText().toString(), this.password.getText()
+							.toString()).post();
 		}
 	}
 
@@ -216,7 +216,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 					RegisterVerifyActivity.class));
 			break;
 		case R.id.forget_password:
-
+			
 			startActivity(new Intent(LoginActivity.this,
 					ForgetPWDVerifyActivity.class));
 			break;
@@ -240,7 +240,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 			else if (v.getId() == password.getId())
 				password.requestFocus();
 			break;
-		case MotionEvent.ACTION_UP:
+	/*	case MotionEvent.ACTION_UP:
 			mScrollView.postDelayed(new Runnable() {
 
 				@Override
@@ -249,42 +249,54 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 				}
 			}, 200);
 			break;
-		default:
+	*/	default:
 			return false;
 		}
 		return false;
 	}
 
-	private static class LoginHandler extends Handler {
-		private WeakReference<LoginActivity> mOuter = null;
+	/*
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
 
-		public LoginHandler(LoginActivity ac) {
-			mOuter = new WeakReference<LoginActivity>(ac);
-		}
-
-		@Override
-		public void handleMessage(Message msg) {
-			LoginActivity ac = mOuter.get();
-			if (ac == null)
-				return;
-			Log.d(TAG,msg.what+"");
-			switch (msg.what) {
-			case WHAT_LOGIN_SUCCESS:
-				if (msg.obj != null) {
-					UserBean userBean = (UserBean) msg.obj;
-					ac.loginSuccess(userBean);
-				} else {
-					ac.mLoginSubmit.setText("登录");
-				}
-				break;
-			case WHAT_LOGIN_FAILURE:
-				ac.mLoginSubmit.setText("登录");
-				Toast.makeText(ac, "账号或密码错误",Toast.LENGTH_SHORT).show();
-				break;
-			default:
-				break;
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec,String id) {
+		switch(id){
+		case "login":
+			JSONObject localJSONObject;
+			try {
+				localJSONObject = new JSONObject(rec);
+				UserBean userBean = (UserBean) JSONHelper.parse(
+						localJSONObject.get("data"), UserBean.class);
+				loginSuccess(userBean);
+			} catch (JSONException e) {
+	
+				e.printStackTrace();
+			} catch (Exception e) {
+	
+				e.printStackTrace();
 			}
+			break;
+		case "":
+			break;
 		}
+	}
+
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
 	}
 
 }

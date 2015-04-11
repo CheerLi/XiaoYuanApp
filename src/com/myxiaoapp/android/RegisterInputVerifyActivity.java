@@ -26,6 +26,7 @@ import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.model.RegisterInfo;
+import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.network.SingleAsyncClient;
 
 /**
@@ -33,7 +34,8 @@ import com.myxiaoapp.network.SingleAsyncClient;
  * 
  */
 public class RegisterInputVerifyActivity extends CommonActivity implements
-		OnClickListener {
+		OnClickListener, OnResponseListener {
+	private static final String TAG = "RegisterInputVerifyActivity";
 	private ActionBar mActionBar;
 	private TextView phone_number;
 	private EditText verify_code;
@@ -41,6 +43,7 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 	private String code;
 	private String errno;
 	private final String url = "http://120.24.76.148/yaf/index.php/Getshortmsg";
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,57 +53,36 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 		init();
 		getVerifyCode();
 	}
-	private void getVerifyCode(){
+
+	private void getVerifyCode() {
 		/*
-		 *手机账号验证接口，后台还没做 
+		 * 手机账号验证接口，后台还没做
 		 */
 		String phone = getIntent().getStringExtra("phone");
-		AsyncHttpClient client = SingleAsyncClient.getSingleClient();
-		final HttpResponseHandler responseHandler = new HttpResponseHandler();
-		responseHandler.setOnResponseListener(new OnResponseListener(){
-
-			@Override
-			public void onFailure() {
-			}
-
-			@Override
-			public void onReceive() {
-				errno = responseHandler.getErrno(); 
-				if(errno.equals("20")){
-					try { 
-						JSONObject jo = new JSONObject(new String(responseHandler.getResponseBody(),"UTF-8"));
-						Log.d("mydebug1", jo.toString());
-						code = responseHandler.getValue(jo, "code");
-					} catch (JSONException e) {
-						
-						e.printStackTrace();
-					} catch (UnsupportedEncodingException e) {
-						
-						e.printStackTrace();
-					}
-				}
-			}
-			
-		});
-		client.post(url, HttpRequestParams.getVerifyParams(phone),responseHandler);
+		new AsyncHttpPost("Getshortmsg",this,phone).post();
+		
 	}
+
 	private void init() {
 		mActionBar = getSupportActionBar();
 		phone_number = (TextView) findViewById(R.id.phone_number);
 		phone_number.setText(RegisterInfo.getPhone());
-		verify_code = (EditText)findViewById(R.id.verify_number); 
+		verify_code = (EditText) findViewById(R.id.verify_number);
 		mButton = (Button) findViewById(R.id.resetpwd_button);
 		mButton.setOnClickListener(this);
 
 	}
 
 	private boolean checkCode() {
-		if(code == null) return false;
-		
-		if(code.equals(verify_code.getText().toString()))
+		Log.d(TAG, "code="+code);
+		if (code == null)
+			return false;
+
+		if (code.equals(verify_code.getText().toString()))
 			return true;
-		else if(code.equals("45")){
-			Toast.makeText(RegisterInputVerifyActivity.this, "运营商发送短信失败", Toast.LENGTH_SHORT).show();
+		else if (code.equals("45")) {
+			Toast.makeText(RegisterInputVerifyActivity.this, "运营商发送短信失败",
+					Toast.LENGTH_SHORT).show();
 		}
 		return false;
 	}
@@ -108,9 +90,42 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 	@Override
 	public void onClick(View v) {
 		if (checkCode()) {
-			startActivity(new Intent(RegisterInputVerifyActivity.this, RegisterSchoolActivity.class));
+			startActivity(new Intent(RegisterInputVerifyActivity.this,
+					RegisterSchoolActivity.class));
 			finish();
 		}
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+		Log.d(TAG, "statusCode="+statusCode);
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec, String id) {
+		Log.d(TAG, "rec="+rec);
+		try {
+			JSONObject jo = new JSONObject(rec);
+			Log.d("mydebug1", jo.toString());
+			code = jo.getString("code");
+		} catch (JSONException e) {
+
+			e.printStackTrace();
+		}  
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
+		Log.d(TAG, "rec"+rec);
 	}
 
 }

@@ -38,7 +38,7 @@ public class SelectPicturesActivity extends CommonActivity implements
 	private ArrayList<CharSequence> mPictureUrls;
 	private ArrayList<CharSequence> mSelected;
 	private String mSelectTips = "完成";
-	
+
 	private TextView mFinish;
 	private int maxSelect;
 
@@ -69,6 +69,7 @@ public class SelectPicturesActivity extends CommonActivity implements
 		mFinish.setText(mSelectTips);
 		mFinish.setOnClickListener(this);
 	}
+
 	private class PicturesAdapter extends BaseAdapter {
 
 		private Context mContext;

@@ -120,7 +120,7 @@ public class ChatPanelActivity extends CommonActivity implements
 		mFirstUser = XiaoYuanApp.getLoginUser(this);
 		mSecondUser = ChatHelper.chatUser;
 		ChatHelper.chatUser = null;
-		setActionBarTitle(mSecondUser.userBean.name);
+		setActionBarTitle(mSecondUser.userBean.getName());
 
 		// test
 		// mSecondUser.setChatUserId(SECOND_USER_ID);
@@ -159,28 +159,30 @@ public class ChatPanelActivity extends CommonActivity implements
 		case R.id.btn_send:
 			String text = mInputText.getText().toString().trim();
 			if (!TextUtils.isEmpty(text)) {
-//				String toWho = XiaoYuanApp.getLoginUser(this).getUserId().equals(
-//						mFirstUser.getUserId()) ? mSecondUser.getChatUserId()
-//						: mFirstUser.getChatUserId();
-//				String fromWho = XiaoYuanApp.getLoginUser(this).getChatUserId();
-//
-//				ChatHelper chatHelper = new ChatHelper();
-//				ChatMessage chatMessage = new ChatMessage();
-//				chatMessage.setMessage(text);
-//				chatMessage.setTime(System.currentTimeMillis());
-//				chatMessage.setFromWho(fromWho);
-//				chatMessage.setToWho(toWho);
-//				chatMessage.setToUser(mSecondUser.getUserId());
-//				chatMessage.setFromUser(mFirstUser.getUserId());
-//				chatMessage.setToUserName(mSecondUser.getName());
-//				chatMessage.setFromUserName(mFirstUser.getName());
-//				String send = ChatMessage.createMsgJson(chatMessage);
-//				Log.d(TAG, "send >>> " + send);
-//				chatHelper.pushMessage(toWho, mSecondUser.getChatChannelId(),
-//						send);
-//				updateChatList(chatMessage);
-//				mInputText.setText("");
-//				ChatHelper.writeChatMessage2DB(this, chatMessage, 1);
+				// String toWho =
+				// XiaoYuanApp.getLoginUser(this).getUserId().equals(
+				// mFirstUser.getUserId()) ? mSecondUser.getChatUserId()
+				// : mFirstUser.getChatUserId();
+				// String fromWho =
+				// XiaoYuanApp.getLoginUser(this).getChatUserId();
+				//
+				// ChatHelper chatHelper = new ChatHelper();
+				// ChatMessage chatMessage = new ChatMessage();
+				// chatMessage.setMessage(text);
+				// chatMessage.setTime(System.currentTimeMillis());
+				// chatMessage.setFromWho(fromWho);
+				// chatMessage.setToWho(toWho);
+				// chatMessage.setToUser(mSecondUser.getUserId());
+				// chatMessage.setFromUser(mFirstUser.getUserId());
+				// chatMessage.setToUserName(mSecondUser.getName());
+				// chatMessage.setFromUserName(mFirstUser.getName());
+				// String send = ChatMessage.createMsgJson(chatMessage);
+				// Log.d(TAG, "send >>> " + send);
+				// chatHelper.pushMessage(toWho, mSecondUser.getChatChannelId(),
+				// send);
+				// updateChatList(chatMessage);
+				// mInputText.setText("");
+				// ChatHelper.writeChatMessage2DB(this, chatMessage, 1);
 			}
 			break;
 		case R.id.iv_add_expression:
@@ -220,7 +222,7 @@ public class ChatPanelActivity extends CommonActivity implements
 	protected void onPause() {
 		super.onPause();
 		updateRecentChat();
-		clearUnReaded(mSecondUser.userBean.uid);
+		clearUnReaded(mSecondUser.userBean.getUid());
 	}
 
 	@Override
@@ -318,13 +320,10 @@ public class ChatPanelActivity extends CommonActivity implements
 		}
 		SQLiteHelper helper = new SQLiteHelper(this);
 		SQLiteDatabase db = helper.getReadableDatabase();
-		Cursor cursor = db
-				.query(SQLiteHelper.TABLE_CHAT_MESSAGE,
-						null,
-						"fromUser = ? or toUser = ? ",
-						new String[] { mSecondUser.userBean.uid,
-								mSecondUser.userBean.uid }, null, null,
-						"times DESC", "20");
+		Cursor cursor = db.query(SQLiteHelper.TABLE_CHAT_MESSAGE, null,
+				"fromUser = ? or toUser = ? ", new String[] {
+						mSecondUser.userBean.getUid(), mSecondUser.userBean.getUid() },
+				null, null, "times DESC", "20");
 		List<ChatMessage> chatMsgs = new LinkedList<ChatMessage>();
 		while (cursor.moveToNext()) {
 			Long timestamp = cursor.getLong(cursor.getColumnIndex("times"));

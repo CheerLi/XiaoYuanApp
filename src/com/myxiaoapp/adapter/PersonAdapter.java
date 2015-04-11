@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +15,14 @@ import android.widget.TextView;
 import com.myxiaoapp.android.R;
 import com.myxiaoapp.model.FocusFansBean;
 import com.myxiaoapp.model.User;
-import com.myxiaoapp.network.FansList.FansListBean;
 
 public class PersonAdapter extends BaseAdapter {
 
 	private Context mContext;
 
 	private List<FocusFansBean> users;
-
+	
+	private final String TAG = "PersonAdapter";
 	public PersonAdapter(Context context) {
 		mContext = context;
 	}
@@ -73,7 +74,7 @@ public class PersonAdapter extends BaseAdapter {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 
-		viewHolder.nickname.setText(user.username);
+		viewHolder.nickname.setText(user.getName());
 		int sexId = 0;
 		if (user.sex.equals(User.SEX_MALE)) {
 			sexId = R.drawable.male;
@@ -101,6 +102,7 @@ public class PersonAdapter extends BaseAdapter {
 
 	public void setData(List<FocusFansBean> users) {
 		this.users = users;
+	//	Log.d(TAG,"user number="+users.size());
 		notifyDataSetChanged();
 	}
 

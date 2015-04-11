@@ -54,6 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_campus_news"
+        android:descendantFocusability="afterDescendants"
         android:clickable="true"
         android:focusable="true"
         android:orientation="horizontal"
@@ -63,7 +64,7 @@
             android:id="@+id/portrait"
             android:layout_width="@dimen/circle_head_width"
             android:layout_height="@dimen/circle_head_height"
-            android:src="@drawable/show_pic_2" />
+         />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -114,7 +115,7 @@
                 android:stretchMode="columnWidth"  
                 android:numColumns="3"/>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -122,29 +123,45 @@
                 android:orientation="horizontal" >
 				
                 <TextView
+                    android:id="@+id/like"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="赞"
-                    android:layout_marginRight="5dp"/>
+                    android:text="0"
+                    android:drawableLeft="@drawable/icon_like"
+                    android:clickable="true"
+                    android:layout_marginRight="10dp"/>
                     
-                <TextView
+         <!--        <TextView
                     android:id="@+id/tv_like"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/like"
                     android:layout_marginRight="10dp"
-                    android:text="18" />
-				
+                    android:text="0" />
+		 -->		
                 <TextView
+                    android:id="@+id/comment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="评论"
-                    android:layout_marginRight="5dp"/>
-                <TextView
+                    android:layout_toRightOf="@id/like"
+                    android:text="0"
+                    android:drawableLeft="@drawable/icon_comment"
+                    android:clickable="true"
+                    android:layout_marginRight="10dp"/>
+        <!--         <TextView
                     android:id="@+id/tv_comment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="6" />
-            </LinearLayout>
+                    android:layout_toRightOf="@id/comment"
+                    android:text="0" />
+          -->       <TextView android:id="@+id/delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:text="删除"
+                    android:clickable="true"
+                    android:visibility="invisible"/>
+            </RelativeLayout>
         </LinearLayout>
     </LinearLayout>
 

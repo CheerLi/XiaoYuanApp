@@ -1,6 +1,5 @@
 package com.myxiaoapp.android;
 
-
 import java.io.UnsupportedEncodingException;
 
 import org.json.JSONException;
@@ -11,6 +10,7 @@ import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.model.RegisterInfo;
+import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.network.SingleAsyncClient;
 
 import android.annotation.SuppressLint;
@@ -33,7 +33,7 @@ import android.widget.Toast;
  * @author JiangZhenJie
  * @date 2014-10-4
  */
-public class VerifyActivity extends CommonActivity implements OnClickListener {
+public class VerifyActivity extends CommonActivity implements OnClickListener, OnResponseListener {
 
 	private TextView mStuNum;
 	private EditText mStuPasswd;
@@ -67,59 +67,7 @@ public class VerifyActivity extends CommonActivity implements OnClickListener {
 	}
 
 	private void getVerifyImage() {
-		AsyncHttpClient client = SingleAsyncClient.getSingleClient();
-		final HttpResponseHandler responseHandler = new HttpResponseHandler();
-		// 获取验证码图片所在url
-		client.post("http://120.24.76.148/yaf/index.php/Campuscode",
-				HttpRequestParams.getVerifyParams(RegisterInfo.getPhone()),
-				responseHandler);
-		responseHandler
-				.setOnResponseListener(new OnResponseListener() {
-
-
-					@Override
-					public void onFailure() {
-					}
-
-					@Override
-					public void onReceive() {
-						try {
-							JSONObject jo = new JSONObject(new String(responseHandler.getResponseBody(),"UTF-8"));
-							AsyncHttpClient client = SingleAsyncClient
-									.getSingleClient();
-							final HttpResponseHandler responseImg = new HttpResponseHandler();
-							String codeImageUrl = "http://120.24.76.148/"
-									+ jo.get("img_url").toString();
-							// 获取验证码图片
-							client.post(codeImageUrl, responseImg);
-							responseImg .setOnResponseListener(new OnResponseListener() {
-
-										@Override
-										public void onReceive() {
-											byte[] img = responseImg.getResponseBody();
-											Bitmap bm = BitmapFactory .decodeByteArray( img, 0, img.length);
-											mVerifyImage .setImageBitmap(bm);
-											mVerifySubmit .setClickable(true);
-											mVerifySubmit.setBackgroundResource(R.drawable.bg_verify_button);
-										}
-
-										@Override
-										public void onFailure() {
-										}
-
-
-									});
-
-						} catch (JSONException e) {
-							e.printStackTrace();
-						} catch (UnsupportedEncodingException e) {
-							
-							e.printStackTrace();
-						}
-					}
-
-				});
-
+		new AsyncHttpPost("CampusCode", this, RegisterInfo.getPhone()).post();
 	}
 
 	private boolean check(String student_code, String student_pwd,
@@ -136,45 +84,11 @@ public class VerifyActivity extends CommonActivity implements OnClickListener {
 		}
 		return true;
 	}
-	
-	private void verify(String student_code, String student_pwd,
-			String verify_code){
-		AsyncHttpClient client = SingleAsyncClient.getSingleClient();
-		final HttpResponseHandler responseHandler = new HttpResponseHandler();
-		client.post("*", HttpRequestParams.schoolVerifyParams( student_code.toString(), student_pwd.toString(), verify_code.toString())
-				,responseHandler);
-		responseHandler.setOnResponseListener(new OnResponseListener() {
 
-					@Override
-					public void onReceive() {
-							
-							try {
-								JSONObject jo =  new JSONObject(new String(responseHandler.getResponseBody(),"UTF-8"));
-								if (jo.getString("errno").equals("20")) {
-									RegisterInfo.recycle();// 回收RegisterInfo类保存的注册信息
-									startActivity(new Intent(
-											VerifyActivity.this,
-											MainUIActivity.class));
-									finish();
-								} else
-									Toast.makeText(VerifyActivity.this,
-											"验证失败", Toast.LENGTH_LONG)
-											.show();
-							} catch (JSONException e) {
-								
-								e.printStackTrace();
-							} catch (UnsupportedEncodingException e) {
-								
-								e.printStackTrace();
-							}
-					}
-
-					@Override
-					public void onFailure() {
-					}
-
-				});
+	private void verify(String student_code, String student_pwd, String verify_code) {
+		new AsyncHttpPost("*", this,student_code.toString(), student_pwd.toString(),verify_code.toString()).post();
 	}
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -192,5 +106,64 @@ public class VerifyActivity extends CommonActivity implements OnClickListener {
 		default:
 			break;
 		}
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void onReceiveSuccess(String id, String rec) {
+		switch(id){
+		case "verifyImage":
+			byte[] img = id.getBytes();
+			Bitmap bm = BitmapFactory.decodeByteArray(img, 0,
+					img.length);
+			mVerifyImage.setImageBitmap(bm);
+			mVerifySubmit.setClickable(true);
+			mVerifySubmit
+					.setBackgroundResource(R.drawable.bg_verify_button);
+			break;
+		case "Campuscode":
+			try {
+				JSONObject jo = new JSONObject(rec);
+				String picUrl = jo.getString("img_url").toString();
+				new AsyncHttpPost("verifyImage", this, picUrl).post();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} 
+			break;
+		case "*":
+			try {
+				JSONObject jo = new JSONObject(rec);
+				if (jo.getString("errno").equals("20")) {
+					RegisterInfo.recycle();// 回收RegisterInfo类保存的注册信息
+					startActivity(new Intent(VerifyActivity.this,
+							MainUIActivity.class));
+					finish();
+				} else
+					Toast.makeText(VerifyActivity.this, "验证失败",
+							Toast.LENGTH_LONG).show();
+			} catch (JSONException e) {
+
+				e.printStackTrace();
+			}  
+			break;
+		default:
+			break;
+		}
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
 	}
 }

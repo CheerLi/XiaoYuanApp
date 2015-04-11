@@ -19,8 +19,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.RegisterInfo;
-import com.myxiaoapp.network.RegisterRequest;
+import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.view.CircleImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -32,7 +33,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
  * @time 2014-9-12
  */
 public class RegisterDetailActivity extends CommonActivity implements
-		OnClickListener {
+		OnClickListener, OnResponseListener {
 	private static final String TAG = "mydebug";
 
 	private Context context;
@@ -147,13 +148,9 @@ public class RegisterDetailActivity extends CommonActivity implements
 				int sex = RegisterInfo.getSex(); // 性别x
 				String usr = username.getText().toString();// 用户名
 				String pwd = password.getText().toString(); // 密码
-				RegisterInfo.setDetail(headPhotUri, sex, RegisterInfo.getPhone(), pwd,usr);// 把注册信息加载到静态注册信息类中
+				RegisterInfo.setDetail(headPhotUri, sex,RegisterInfo.getPhone(), pwd, usr);// 把注册信息加载到静态注册信息类中
 
-				RegisterHandler handler = new RegisterHandler(
-						RegisterDetailActivity.this);
-				RegisterRequest request = new RegisterRequest(this, handler,
-						WHAT_REGISTER);
-				request.post();
+				new AsyncHttpPost("Register", this).post();
 
 				// AsyncHttpClient client = new AsyncHttpClient();
 				// final HttpResponseHandler responseHandler = new
@@ -209,42 +206,32 @@ public class RegisterDetailActivity extends CommonActivity implements
 		}
 	}
 
-	private static final int WHAT_REGISTER = 0x123;
+	/*
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
 
-	private static class RegisterHandler extends Handler {
-		private WeakReference<RegisterDetailActivity> mOuter;
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec, String id) {
+		startActivity(new Intent(this, RegisterSuccessActivity.class));
+		finish();
+	}
 
-		public RegisterHandler(RegisterDetailActivity ac) {
-			mOuter = new WeakReference<RegisterDetailActivity>(ac);
-		}
-
-		/*
-		 * @see android.os.Handler#handleMessage(android.os.Message)
-		 */
-		@Override
-		public void handleMessage(Message msg) {
-			RegisterDetailActivity ac = mOuter.get();
-			if (ac == null) {
-				return;
-			}
-
-			switch (msg.what) {
-			case WHAT_REGISTER:
-				if (msg.obj == null) {
-					Log.d(TAG, "register fail");
-					Toast.makeText(ac, "注册失败", Toast.LENGTH_LONG).show();
-				} else {
-					Log.d(TAG, "register success");
-					ac.startActivity(new Intent(ac,
-							RegisterSuccessActivity.class));
-					ac.finish();
-				}
-				break;
-
-			default:
-				break;
-			}
-		}
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
+		Toast.makeText(this, "注册失败", Toast.LENGTH_LONG).show();
 	}
 
 }

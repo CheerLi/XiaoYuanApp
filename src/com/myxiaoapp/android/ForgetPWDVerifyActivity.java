@@ -4,6 +4,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.HttpResponseHandler;
+import com.myxiaoapp.network.AsyncHttpPost;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,16 +19,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * 找回密码
- * 		输入手机号码
- 
+ * 找回密码 输入手机号码
+ * 
  * @author liqihang
  * @time 2014-9-12
  * 
  */
-public class ForgetPWDVerifyActivity extends CommonActivity implements OnClickListener{
+public class ForgetPWDVerifyActivity extends CommonActivity implements
+		OnClickListener, OnResponseListener {
 	private Button nextbtn_reset_password;
 	private EditText phonenumber_input;
+	private String phoneNumber;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,14 +38,15 @@ public class ForgetPWDVerifyActivity extends CommonActivity implements OnClickLi
 		showBackButton();
 		setActionBarTitle(R.string.forgetpwd_actionbar_title);
 		init();
-		}
-	private void init(){
-		phonenumber_input = (EditText)findViewById(R.id.phonenumber_input);
-		nextbtn_reset_password = (Button)findViewById(R.id.forgetpwd_next);
-		nextbtn_reset_password.setOnClickListener(this);
-	
 	}
-	
+
+	private void init() {
+		phonenumber_input = (EditText) findViewById(R.id.phonenumber_input);
+		nextbtn_reset_password = (Button) findViewById(R.id.forgetpwd_next);
+		nextbtn_reset_password.setOnClickListener(this);
+
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -56,48 +59,49 @@ public class ForgetPWDVerifyActivity extends CommonActivity implements OnClickLi
 		return super.onOptionsItemSelected(item);
 	}
 
-	private boolean check(){
-		String phoneNumber = phonenumber_input.getText().toString();
-		if(phoneNumber.equals("")){
-			Toast.makeText(ForgetPWDVerifyActivity.this, "请输入手机号码", Toast.LENGTH_LONG).show();
+	private boolean check() {
+		phoneNumber = phonenumber_input.getText().toString();
+		if (phoneNumber.equals("")) {
+			Toast.makeText(ForgetPWDVerifyActivity.this, "请输入手机号码",
+					Toast.LENGTH_LONG).show();
 			return false;
 		}
 		return true;
 	}
+
 	@Override
 	public void onClick(View v) {
-		if(check()){
-
+		if (check()) {
 			final String phoneNumber = phonenumber_input.getText().toString();
-			Intent mIntent = new Intent(ForgetPWDVerifyActivity.this,ForgetPWDInputVerifyNumber.class);
-			mIntent.putExtra("phoneNumber",phoneNumber);
-			startActivity(mIntent);
-			finish();
-		/*	
-			AsyncHttpClient client = new AsyncHttpClient();
-			final HttpResponseHandler responseHandler = new HttpResponseHandler();
-			final String phoneNumber = phonenumber_input.getText().toString();
-			client.post("http://172.31.180.35/yaf/index.php/CheckPhoneNum", HttpRequestParams.checkPhoneParams(phoneNumber), responseHandler);
-			responseHandler.setOnResponseListener(new OnResponseListener(){
-
-
-				@Override
-				public void onFailure() {
-				}
-
-				@Override
-				public void onReceiveSuccess() {
-					Intent mIntent = new Intent(ForgetPWDVerifyActivity.this,ForgetPWDInputVerifyNumber.class);
-					mIntent.putExtra("phoneNumber",phoneNumber);
-					startActivity(mIntent);
-					finish();					
-				}
-
-				@Override
-				public void onReceiveFailure() {
-				}	
-			});
-		*/
+			new AsyncHttpPost("Checkphonenum", this, phoneNumber).post();
+			
 		}
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void onReceiveSuccess(String id, String rec) {
+		Intent mIntent = new Intent(ForgetPWDVerifyActivity.this,
+				ForgetPWDInputVerifyNumber.class);
+		mIntent.putExtra("phoneNumber", phoneNumber);
+		startActivity(mIntent);
+		finish();
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
+		Toast.makeText(this, "手机未注册或格式错误", Toast.LENGTH_SHORT).show();
 	}
 }

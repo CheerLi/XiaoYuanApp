@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.widget.PopupMenu.OnMenuItemClickListener;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,11 +24,20 @@ import android.widget.RadioGroup;
 
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.location.LocationClientOption.LocationMode;
 import com.myxiaoapp.chathelper.RestApi;
+import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.utils.LocationHelper;
+import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
 
 public class MainUIActivity extends CommonActivity implements
-		OnPageChangeListener, OnClickListener, OnMenuItemClickListener {
-
+		OnPageChangeListener, OnClickListener, OnMenuItemClickListener,OnResponseListener, BDLocationListener {
+	LocationClient loc;
 	private Context mContext;
 	private RadioGroup mTabGroup;
 	private RadioButton mRbCampus;
@@ -44,6 +54,7 @@ public class MainUIActivity extends CommonActivity implements
 	public static final String TAG_DISCOVERY = "discovery";
 	public static final String TAG_CHAT = "chat";
 	public static final String TAG_ME = "me";
+	private static final String TAG = "MainUIActivity";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +62,11 @@ public class MainUIActivity extends CommonActivity implements
 		setContentView(R.layout.activity_main_ui);
 		mContext = this;
 		init();
+		startBackstate();
 		mApp.destoryOtherLaunchActivitys();
 
 	}
-
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -63,12 +75,12 @@ public class MainUIActivity extends CommonActivity implements
 					RestApi.API_KEY);
 		}
 	}
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -106,9 +118,19 @@ public class MainUIActivity extends CommonActivity implements
 		// | ActionBar.DISPLAY_SHOW_CUSTOM);
 
 		setTab(0);
-
+		
 	}
-
+	private void startBackstate(){
+		loc = new LocationClient(this.getApplicationContext());
+		loc.registerLocationListener(this);
+		LocationClientOption locOpt = new LocationClientOption();
+	//	locOpt.setLocationMode(LocationMode.Hight_Accuracy);
+		locOpt.setScanSpan(1000);
+	//	locOpt.setCoorType("gcj02");
+	//	locOpt.setIsNeedAddress(false);
+		loc.setLocOption(locOpt);
+		loc.start();
+	} 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// int menuRes = R.menu.campus_people;
@@ -279,5 +301,42 @@ public class MainUIActivity extends CommonActivity implements
 			break;
 		}
 		return true;
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec, String id) {
+		switch(id){
+		case "Backstate":
+			Log.d(TAG, "回传成功");
+			break;
+			default:break;
+		}
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
+	}
+
+	/* 
+	 * @see com.baidu.location.BDLocationListener#onReceiveLocation(com.baidu.location.BDLocation)
+	 */
+	@Override
+	public void onReceiveLocation(BDLocation arg0) {
+		Log.i(TAG, "lat="+arg0.getLatitude()+"lng="+arg0.getLongitude());
+		new AsyncHttpPost("Backstate", MainUIActivity.this, XiaoYuanApp.getLoginUser(MainUIActivity.this).userBean.getUid(), arg0.getLatitude() + "", arg0.getLongitude()+ "").post();
+	
 	}
 }

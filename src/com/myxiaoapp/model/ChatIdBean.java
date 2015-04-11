@@ -6,7 +6,7 @@ package com.myxiaoapp.model;
 
 /**
  * @author JiangZhenJie
- *
+ * 
  */
 public class ChatIdBean {
 	public String chatUserId;

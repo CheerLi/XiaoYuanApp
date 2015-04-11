@@ -19,7 +19,8 @@ import com.myxiaoapp.utils.Constant;
  * @author JiangZhenJie
  * @date 2014-9-7
  */
-public abstract class NetBaseActivity extends BaseActivity implements IHttpCallBacker{
+public abstract class NetBaseActivity extends BaseActivity implements
+		IHttpCallBacker {
 
 	private HttpHelper mHttpHelper;
 
@@ -29,7 +30,7 @@ public abstract class NetBaseActivity extends BaseActivity implements IHttpCallB
 		mHttpHelper = new HttpHelper(this, this);
 	}
 
-	public void sendRequest(ResponseHandlerInterface responseHandler,int msgId) {
+	public void sendRequest(ResponseHandlerInterface responseHandler, int msgId) {
 		sendRequest(responseHandler, msgId, Constant.HTTP_GET, true);
 	}
 
@@ -37,8 +38,8 @@ public abstract class NetBaseActivity extends BaseActivity implements IHttpCallB
 		sendRequest(responseHandler, 0);
 	}
 
-	public void sendRequest(ResponseHandlerInterface responseHandler, int msgId, int httpType,
-			boolean isShowDialog) {
+	public void sendRequest(ResponseHandlerInterface responseHandler,
+			int msgId, int httpType, boolean isShowDialog) {
 		mHttpHelper.sendRequest(responseHandler, httpType);
 	}
 

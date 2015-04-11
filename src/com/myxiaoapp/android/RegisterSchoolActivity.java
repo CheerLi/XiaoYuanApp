@@ -19,7 +19,8 @@ import android.widget.Toast;
  * @author liqihang
  * @date 2014-9-12
  */
-public class RegisterSchoolActivity extends CommonActivity implements OnClickListener{
+public class RegisterSchoolActivity extends CommonActivity implements
+		OnClickListener {
 
 	private Button nextbtn_school;
 	private Spinner province;
@@ -38,9 +39,9 @@ public class RegisterSchoolActivity extends CommonActivity implements OnClickLis
 		city = (Spinner) findViewById(R.id.spinner_city);
 		city.setSelection(1);
 		school = (Spinner) findViewById(R.id.spinner_school);
-		school.setSelection(1);		
+		school.setSelection(1);
 		contract = (CheckBox) findViewById(R.id.contract);
-		contract.setChecked(true);//默认签署用户协议
+		contract.setChecked(true);// 默认签署用户协议
 		showBackButton();
 		mApp.addLaunchActivity(this);
 
@@ -61,30 +62,36 @@ public class RegisterSchoolActivity extends CommonActivity implements OnClickLis
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	private boolean check(){
-		if(province.getSelectedItem().equals("请选择")){
-			Toast.makeText(RegisterSchoolActivity.this, "请选择省份", Toast.LENGTH_LONG).show();
+
+	private boolean check() {
+		if (province.getSelectedItem().equals("请选择")) {
+			Toast.makeText(RegisterSchoolActivity.this, "请选择省份",
+					Toast.LENGTH_LONG).show();
 			return false;
-		}else if(city.getSelectedItem().equals("请 选择")){
-			Toast.makeText(RegisterSchoolActivity.this, "请选择城市", Toast.LENGTH_LONG).show();
+		} else if (city.getSelectedItem().equals("请 选择")) {
+			Toast.makeText(RegisterSchoolActivity.this, "请选择城市",
+					Toast.LENGTH_LONG).show();
 			return false;
-		}else if(school.getSelectedItem().equals("请选择")){
-			Toast.makeText(RegisterSchoolActivity.this, "请选择学校", Toast.LENGTH_LONG).show();
+		} else if (school.getSelectedItem().equals("请选择")) {
+			Toast.makeText(RegisterSchoolActivity.this, "请选择学校",
+					Toast.LENGTH_LONG).show();
 			return false;
-		}else if(!contract.isChecked()){
-			Toast.makeText(RegisterSchoolActivity.this, "是否同意用户协议", Toast.LENGTH_LONG).show();
+		} else if (!contract.isChecked()) {
+			Toast.makeText(RegisterSchoolActivity.this, "是否同意用户协议",
+					Toast.LENGTH_LONG).show();
 			return false;
 		}
 		return true;
 	}
+
 	@Override
 	public void onClick(View v) {
-		
-		if(check()) {
-			RegisterInfo.setSchoolCode(1);//学校代码
-			startActivity(new Intent(RegisterSchoolActivity.this,RegisterDetailActivity.class));
+
+		if (check()) {
+			RegisterInfo.setSchoolCode(1);// 学校代码
+			startActivity(new Intent(RegisterSchoolActivity.this,
+					RegisterDetailActivity.class));
 		}
 	}
-	
 
 }

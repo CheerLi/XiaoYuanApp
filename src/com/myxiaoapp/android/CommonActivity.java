@@ -34,7 +34,8 @@ public abstract class CommonActivity extends BaseActivity {
 		mActionBarTitle = (TextView) view.findViewById(R.id.tv_title);
 		mActionBarRightButton = (ImageButton) view
 				.findViewById(R.id.ibtn_right);
-		mActionBarRightText = (TextView) view.findViewById(R.id.ibtn_right_text);
+		mActionBarRightText = (TextView) view
+				.findViewById(R.id.ibtn_right_text);
 
 		mActionBar.setDisplayShowCustomEnabled(true);
 		mActionBar.setDisplayHomeAsUpEnabled(false);
@@ -112,7 +113,8 @@ public abstract class CommonActivity extends BaseActivity {
 	 * @param listener
 	 *            菜单项的监听器
 	 */
-	public void showMenuButton(final int menuId,final OnMenuItemClickListener listener) {
+	public void showMenuButton(final int menuId,
+			final OnMenuItemClickListener listener) {
 		showMenuButton(new OnClickListener() {
 
 			@Override
@@ -134,7 +136,6 @@ public abstract class CommonActivity extends BaseActivity {
 		mActionBarRightButton.setOnClickListener(listener);
 	}
 
-	
 	// /**
 	// * 设置是否显示右分割线。 如果标题栏右边包含菜单项，建议显示右边分割线
 	// *
@@ -164,7 +165,7 @@ public abstract class CommonActivity extends BaseActivity {
 		return mActionBarRightButton;
 	}
 
-	public TextView getActionBarRightText(){
+	public TextView getActionBarRightText() {
 		mActionBarRightText.setVisibility(View.VISIBLE);
 		return mActionBarRightText;
 	}

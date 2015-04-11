@@ -26,14 +26,14 @@
             android:text="@string/chat_output_button" />
 
         <!-- 表情按钮 -->
-
+<!-- 
         <ImageView
             android:id="@+id/chat_face"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/chat_output"
             android:src="@drawable/ic_launcher" />
-
+ -->
         <!-- 输入框 -->
 
         <EditText
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
-            android:layout_toLeftOf="@id/chat_face"
+            android:layout_toLeftOf="@id/chat_output"
             android:background="@color/white" />
     </RelativeLayout>
     <!-- 正文内容 -->
@@ -70,8 +70,7 @@
                 android:layout_height="@dimen/circle_head_height"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginTop="10dp"
-                android:src="@drawable/show_pic_1" />
+                android:layout_marginTop="10dp"  />
 
             <!-- 心情  点赞  评论 -->
 
@@ -84,15 +83,14 @@
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin" >
 				
-                <TextView
+        <!--         <TextView
                     android:id="@+id/username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
-                    android:text="XIZI LUO"
+                    android:layout_alignParentLeft="true" 
                     android:textSize="@dimen/textSize_large" />
-                
+ -->                
                 <!-- 下面的paddingTop=5dp，是为了与左边的昵称对齐处于同一水平线 -->
                 <TextView
                     android:id="@+id/time"
@@ -100,15 +98,12 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
-                    android:paddingTop="5dp"
-                    android:text="今天21:30"
+                    android:paddingTop="5dp" 
                     android:textColor="@color/text_color" />
                 <TextView
                     android:id="@+id/mood"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/username"
-                    android:text="马上要到冬天了，非常期待！回想起以前好想有一场说走就走的旅行"
+                    android:layout_height="wrap_content" 
                     android:textColor="@color/text_color"
                     android:textSize="@dimen/textSize_middle" />
 
@@ -131,8 +126,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_below="@id/campus_comment"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:drawableLeft="@drawable/icon_comment"
-                    android:text="12"
+                    android:drawableLeft="@drawable/icon_comment" 
                     android:textColor="@color/text_color" />
 
                 <TextView
@@ -143,8 +137,7 @@
                     android:layout_marginRight="@dimen/activity_horizontal_margin_large"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:layout_toLeftOf="@id/number_of_people_comment"
-                    android:drawableLeft="@drawable/icon_like"
-                    android:text="7"
+                    android:drawableLeft="@drawable/icon_like" 
                     android:textColor="@color/text_color" />
 
                 <TextView
@@ -153,11 +146,9 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/campus_comment"
                     android:layout_toLeftOf="@id/number_of_people_like"
-                    android:layout_marginTop="@dimen/activity_vertical_margin"
-                    android:drawableLeft="@drawable/icon_like"
+                    android:layout_marginTop="@dimen/activity_vertical_margin" 
                     android:ellipsize="end"
                     android:singleLine="true"
-                    android:text="陈赢了,Carrie,Becky,小王,小张..."
                     android:textColor="@color/text_color" />
 
                 <ListView

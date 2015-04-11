@@ -1,7 +1,11 @@
 package com.myxiaoapp.utils;
 
-import com.myxiaoapp.android.R;
+import android.content.Context;
+import android.util.Log;
+import android.view.WindowManager;
 
+import com.myxiaoapp.android.MyXiaoApp;
+import com.myxiaoapp.android.R; 
 public class Constant {
 	public static final int FLAG_ME = 1;
 	public static final int FLAG_Discovery = 2;
@@ -35,4 +39,15 @@ public class Constant {
 	 */
 	public static final int EXPRESSION_NUMBER = 50;
 	public static final int START_ID = R.drawable.emoji_000;
+	
+	public static int deviceWidth;
+	public static int deviceHeight;
+	
+	static {
+		WindowManager wm = (WindowManager) MyXiaoApp.getInstance().getBaseContext()
+                .getSystemService(Context.WINDOW_SERVICE);
+		deviceWidth = wm.getDefaultDisplay().getWidth();
+		deviceHeight = wm.getDefaultDisplay().getHeight();
+	//	Log.d(TAG, "width="+deviceWidth+","+"height="+deviceWidth);
+	}
 }

@@ -5,6 +5,7 @@
 package com.myxiaoapp.model;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import org.apache.http.Header;
 import org.json.JSONException;
@@ -14,6 +15,7 @@ import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.utils.Constant;
 
 /**
  * @author ken 后台返回的数据
@@ -27,26 +29,27 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 	/*
 	 * 以下三个为responseBody里面的数据
 	 */
-	private String errno; // 返回json数据里面的状态码，如20成功，40失败 
- 
+	private String errno; // 返回json数据里面的状态码，如20成功，40失败
 
 	private String charSet = "UTF-8";
 
 	private OnResponseListener listener;
+	private String id;
 	private final String CONSTANTLOG = "HttpResponseHandler:";
 
-	public HttpResponseHandler() {
+/*	public HttpResponseHandler() {
 
 	}
-
-	public HttpResponseHandler(OnResponseListener l) {
+*/
+	public HttpResponseHandler(OnResponseListener l, String id) {
 		this.listener = l;
+		this.id = id;
 	}
-
+/*
 	public void setOnResponseListener(OnResponseListener mListener) {
 		this.listener = mListener;
 	}
-
+*/
 	@Override
 	public void onFailure(int statusCode, Header[] headers,
 			byte[] responseBody, Throwable error) {
@@ -54,7 +57,10 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 		this.headers = headers;
 		this.responseBody = responseBody;
 		this.error = error;
-		listener.onFailure();
+		listener.onFailure(statusCode);
+		if(responseBody != null){
+			Log.d("mydebug", new String(responseBody));
+		}
 	}
 
 	/**
@@ -71,32 +77,25 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 		this.responseBody = responseBody;
 		String rec = null;
 		try {
-			rec = new String(responseBody,"UTF-8");
-			Log.d("mydebug",rec);
+			rec = new String(responseBody, "UTF-8");
+			rec = URLDecoder.decode(rec,Constant.charSet);
+			Log.d("mydebug", rec);
 			JSONObject jo = new JSONObject(rec);
-			this.errno = jo.getString("errno"); 
+			this.errno = jo.getString("errno");
+
+			if (this.errno.equals("20")) {
+				listener.onReceiveSuccess(rec,id);
+			} else {
+				listener.onReceiveFailure(rec);
+			}
 		} catch (UnsupportedEncodingException e) {
-			
+
 			e.printStackTrace();
 		} catch (JSONException e) {
-			
+
 			e.printStackTrace();
 		}
-		listener.onReceive();
-		
-		/*
-		 * try {
-		 * 
-		 * Log.i("mydebug", CONSTANTLOG+new String(responseBody,charSet));
-		 * JSONObject jo = new JSONObject(new String(responseBody,charSet));
-		 * Log.i("mydebug", CONSTANTLOG+"JSON解析成功"); analyResponse(jo);
-		 * 
-		 * if(20 == this.errno){ listener.onReceiveSuccess(); }else {
-		 * listener.onReceiveFailure(); } } catch (UnsupportedEncodingException
-		 * e) { listener.onReceive(); } catch (JSONException e) {
-		 * listener.onReceive(); }
-		 */
-		
+
 	}
 
 	@Override
@@ -118,15 +117,17 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 	public Throwable getThrowable() {
 		return error;
 	}
-	public String getErrno(){
-		
+
+	public String getErrno() {
+
 		return this.errno;
-	} 
-	public String getValue(JSONObject jo,String key){
+	}
+
+	public String getValue(JSONObject jo, String key) {
 		try {
 			return jo.getString(key);
 		} catch (JSONException e) {
-			
+
 			e.printStackTrace();
 		}
 		return null;

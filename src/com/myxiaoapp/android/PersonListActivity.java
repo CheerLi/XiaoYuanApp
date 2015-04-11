@@ -3,19 +3,29 @@ package com.myxiaoapp.android;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.os.Message; 
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.google.gson.Gson;
 import com.myxiaoapp.adapter.PersonAdapter;
+import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.model.FansListBean;
 import com.myxiaoapp.model.FocusFansBean;
-import com.myxiaoapp.network.FansList;
-import com.myxiaoapp.network.FansList.FansListBean;
-import com.myxiaoapp.network.FocusList;
-import com.myxiaoapp.network.FocusList.FocusListBean;
+import com.myxiaoapp.model.FocusListBean;
+import com.myxiaoapp.model.UserInfoBean;
+import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.utils.JSONHelper;
 import com.myxiaoapp.utils.Utils;
 
 /**
@@ -24,9 +34,10 @@ import com.myxiaoapp.utils.Utils;
  * @author JiangZhenJie
  * @date 2014-9-26
  */
-public class PersonListActivity extends CommonActivity {
+public class PersonListActivity extends CommonActivity implements
+		OnResponseListener,OnItemClickListener {
 
-	private static final String TAG = "mydebug";
+	private static final String TAG = "PersonListActivity";
 	private static final int DEFAULT_PAGE_SIZE = 20;
 
 	private ListView mPersonsList;
@@ -40,7 +51,7 @@ public class PersonListActivity extends CommonActivity {
 
 	private static final int WHAT_REQUEST_PERSON = 0x123;
 
-	private Handler handler ;
+	private Handler handler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,11 +59,10 @@ public class PersonListActivity extends CommonActivity {
 		setContentView(R.layout.activity_person_list);
 		setActionBarTitle("粉丝/关注");
 		mPersonsList = (ListView) findViewById(R.id.lv_person);
+		mPersonsList.setOnItemClickListener(this);
 		PersonAdapter adapter = new PersonAdapter(this);
 		mPersonsList.setAdapter(adapter);
 
-		handler = new PersonHandler(this);
-		
 		Intent intent = getIntent();
 		user_id = intent.getStringExtra("user_id");
 		follow_id = intent.getStringExtra("follow_id");
@@ -68,56 +78,98 @@ public class PersonListActivity extends CommonActivity {
 
 	private void request() {
 		if (flag == 0) {
-			FansList fansList = new FansList(this, user_id, follow_id,
-					DEFAULT_PAGE_SIZE + "", handler, WHAT_REQUEST_PERSON);
+			AsyncHttpPost fansList = new AsyncHttpPost("Fanslist", this,
+					user_id, follow_id, DEFAULT_PAGE_SIZE + "");
 			fansList.post();
 		} else if (flag == 1) {
-			FocusList focusList = new FocusList(this, user_id, follow_id,
-					DEFAULT_PAGE_SIZE + "", handler, WHAT_REQUEST_PERSON);
+			AsyncHttpPost focusList = new AsyncHttpPost("Followslist", this,
+					user_id, follow_id, DEFAULT_PAGE_SIZE + "");
 			focusList.post();
 		}
+		
+		//test interface
+		
+		//关注好友
+	//	new AsyncHttpPost("follow", this, user_id, "10005").post();
+		
+		//取消关注
+	//	new AsyncHttpPost("cancelfollow",this, user_id,"10005").post();
 	}
 
 	private void updateUI() {
 		List<FocusFansBean> beans = null;
 		if (flag == 0) {
-			beans = fansBean.fansList;
+			beans = fansBean.data;
 		} else if (flag == 1) {
-			beans = focusBean.focusList;
+			beans = focusBean.data;
 		}
 		PersonAdapter adapter = (PersonAdapter) mPersonsList.getAdapter();
-		adapter.setData(beans);
+		adapter.setData(beans); 
 		Utils.dismissProgressDialog();
 	}
 
-	private static class PersonHandler extends Handler {
-		private WeakReference<PersonListActivity> mOuter;
+	/*
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
 
-		public PersonHandler(PersonListActivity ac) {
-			mOuter = new WeakReference<PersonListActivity>(ac);
-		}
-
-		@Override
-		public void handleMessage(Message msg) {
-			PersonListActivity ac = mOuter.get();
-			if (ac == null)
-				return;
-
-			switch (msg.what) {
-			case WHAT_REQUEST_PERSON:
-				if (ac.flag == 0) {
-					ac.fansBean = (FansListBean) msg.obj;
-					ac.updateUI();
-				} else if (ac.flag == 1) {
-					ac.focusBean = (FocusListBean) msg.obj;
-					ac.updateUI();
-				}
-				break;
-
-			default:
-				break;
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec, String id) {
+		Log.d(TAG,rec);
+		Gson gson = new Gson();
+		switch(id){
+		case "Fanslist":
+		case "Followslist":
+			if (flag == 0) { 
+				fansBean = (FansListBean) gson.fromJson(rec, FansListBean.class);
+			} else if (flag == 1) {
+				focusBean = (FocusListBean) gson.fromJson(rec, FocusListBean.class);
 			}
+			updateUI();
+			break;
+		case "Getinfo":
+			
+			UserInfoBean userInfoBean = gson.fromJson(rec, UserInfoDataBean.class).getData();
+			Intent intent = new Intent(this, HomePageActivity.class); 
+			intent.putExtra("bean", userInfoBean);
+			startActivity(intent); 
+			break;
 		}
+		
+	}
+
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
+		Log.d(TAG, rec);
+	}
+
+	/* 
+	 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+	 */
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,long id) {
+		FocusFansBean bean = null;
+		if( flag == 0){
+			bean = fansBean.data.get(position);
+		}else if(flag == 1){
+			bean = focusBean.data.get(position);
+		}
+		String uid = bean.getUid();
+		new AsyncHttpPost("Getinfo", this,XiaoYuanApp.getLoginUser(this).userBean.getUid(), uid)
+		.post();
+
 	}
 
 }

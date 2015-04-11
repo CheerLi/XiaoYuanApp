@@ -9,6 +9,7 @@
     tools:context="com.myxiaoapp.android.ModifyPersonalSignActivity" >
 
     <EditText
+        android:id="@+id/modify"
         android:layout_width="match_parent"
         android:inputType="textMultiLine"
         android:layout_height="wrap_content"/>

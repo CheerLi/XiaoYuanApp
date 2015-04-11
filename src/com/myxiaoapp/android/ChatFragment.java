@@ -58,7 +58,7 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 		getActivity().registerReceiver(messageReceiver, filter);
 		updateRecentChat();
 	}
-	
+
 	@Override
 	public void onPause() {
 		getActivity().unregisterReceiver(messageReceiver);
@@ -133,7 +133,7 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 					// chatMsg.setToUserName(chatUserName);
 					// chatMsg.setMessage(recentMessage);
 					User loginUser = XiaoYuanApp.getLoginUser(getActivity());
-					if (!TextUtils.equals(userId, loginUser.userBean.uid)) {
+					if (!TextUtils.equals(userId, loginUser.userBean.getUid())) {
 						RecentChatItem chatItem = new RecentChatItem();
 						chatItem.setTimestamp(timestamp);
 						chatItem.setChatUserId(chatUserId);

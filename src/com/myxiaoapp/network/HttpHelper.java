@@ -19,13 +19,13 @@ public class HttpHelper {
 	private Context mContext;
 	private IHttpCallBacker mCallBack;
 
-	
 	public HttpHelper(Context c, IHttpCallBacker callBack) {
 		this.mContext = c;
 		this.mCallBack = callBack;
 	}
 
-	public void sendRequest(final ResponseHandlerInterface responseHandler, final int httpType) {
+	public void sendRequest(final ResponseHandlerInterface responseHandler,
+			final int httpType) {
 		new Thread(new Runnable() {
 
 			@Override
@@ -39,9 +39,9 @@ public class HttpHelper {
 		HttpParams params = new BasicHttpParams();
 		return null;
 	}
-	
-	public void loaderCampusNews(Handler handler){
-		
+
+	public void loaderCampusNews(Handler handler) {
+
 	}
 
 }

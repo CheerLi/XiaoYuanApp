@@ -55,7 +55,7 @@ public class CollapsibleTextView extends LinearLayout {
 		mCollapseText.setClickable(true);
 		mCollapseText.setOnClickListener(mClickListener);
 		int padding = Utils.dpChangePix(context, 2);
-		mCollapseText.setPadding(padding*2, padding, padding*2, padding);
+		mCollapseText.setPadding(padding * 2, padding, padding * 2, padding);
 		addView(mRealTextView);
 		addView(mCollapseText);
 	}
@@ -74,8 +74,8 @@ public class CollapsibleTextView extends LinearLayout {
 			}
 		});
 	}
-	
-	public void setText(int resId){
+
+	public void setText(int resId) {
 		String text = getResources().getString(resId);
 		setText(text);
 	}

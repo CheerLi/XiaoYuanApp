@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.myxiaoapp.android.R;
+import com.myxiaoapp.model.NearPersonBean;
 import com.myxiaoapp.model.User;
 
 public class CampusPeopleAdapter extends BaseAdapter {
-
+	private final String TAG = "CampusPeopleAdapter";
 	// test data
 	// Object[][] data = { { "轻风抚面", "我要飞得更高", "1000m", R.drawable.male },
 	// { "轻风抚面", "我要飞得更高", "1000m", R.drawable.female },
@@ -30,13 +32,13 @@ public class CampusPeopleAdapter extends BaseAdapter {
 
 	private Context mContext;
 
-	private List<User> users;
+	private List<NearPersonBean> users;
 
 	public CampusPeopleAdapter(Context context) {
 		mContext = context;
 	}
 
-	public CampusPeopleAdapter(Context context, List<User> users) {
+	public CampusPeopleAdapter(Context context, List<NearPersonBean> users) {
 		mContext = context;
 		this.users = users;
 	}
@@ -65,7 +67,7 @@ public class CampusPeopleAdapter extends BaseAdapter {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder viewHolder = null;
-		User user = (User) getItem(position);
+		NearPersonBean user = (NearPersonBean) getItem(position);
 		if (convertView == null) {
 			convertView = LayoutInflater.from(mContext).inflate(
 					R.layout.campus_people_list_item, null);
@@ -83,11 +85,11 @@ public class CampusPeopleAdapter extends BaseAdapter {
 			viewHolder = (ViewHolder) convertView.getTag();
 		}
 
-		viewHolder.nickname.setText(user.userBean.username);
+		viewHolder.nickname.setText(user.getName());
 		int sexId = 0;
-		if (user.userBean.sex.equals(User.SEX_MALE)) {
+		if (user.getSex().equals(User.SEX_MALE)) {
 			sexId = R.drawable.male;
-		} else if (user.userBean.sex.equals(User.SEX_FEMALE)) {
+		} else if (user.getSex().equals(User.SEX_FEMALE)) {
 			sexId = R.drawable.female;
 		}
 		Drawable right = null;
@@ -96,8 +98,8 @@ public class CampusPeopleAdapter extends BaseAdapter {
 		}
 		viewHolder.nickname.setCompoundDrawablesWithIntrinsicBounds(null, null,
 				right, null);
-		viewHolder.personalSign.setText(user.userBean.moto);
-		viewHolder.distance.setText("距离100m");
+		viewHolder.personalSign.setText(user.getMoto());
+		viewHolder.distance.setText(user.getDistance());
 
 		return convertView;
 	}
@@ -109,13 +111,16 @@ public class CampusPeopleAdapter extends BaseAdapter {
 		TextView distance;
 	}
 
-	public void setData(List<User> users) {
+	public void setData(List<NearPersonBean> users) {
 		this.users = users;
 		notifyDataSetChanged();
 	}
-
-	public void addData(User user) {
-		this.users.add(user);
+	public void clear(){
+		users.clear();
+	}
+	public void addData(List<NearPersonBean> user) {
+		Log.d(TAG,user.toString());
+		this.users.addAll(user);
 		notifyDataSetChanged();
 	}
 

@@ -44,7 +44,7 @@ public class SettingActivity extends CommonActivity implements OnClickListener,
 	}
 
 	private void initView() {
-		
+
 		showBackButton();
 
 		int[] layoutIds = { R.id.setting_new_message,

@@ -10,7 +10,7 @@ import java.util.List;
  * @author JiangZhenJie
  * 
  */
-public class LastMomentBean{
+public class LastMomentBean {
 	public String m_id;
 	public String m_type;
 	public String m_info;
@@ -19,13 +19,14 @@ public class LastMomentBean{
 	public String m_time;
 	public String m_collectnum;
 	public String m_commentnum;
-//	public String m_transpondnum;
+	// public String m_transpondnum;
 	public String m_likesnum;
 	public String m_readnum;
 	public String m_label;
 	public String user_id;
 	public String is_del;
 	public String is_close;
+
 	@Override
 	public String toString() {
 		return "MomentBean [m_id=" + m_id + ", m_type=" + m_type + ", m_info="

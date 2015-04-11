@@ -6,8 +6,8 @@ package com.myxiaoapp.model;
 
 /**
  * @author ken
- *
+ * 
  */
 public class ShortMsgBean {
-	
+
 }

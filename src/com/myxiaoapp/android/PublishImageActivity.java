@@ -12,6 +12,8 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -26,8 +28,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.User;
-import com.myxiaoapp.network.UploadMsg;
+import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.utils.InputUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -39,9 +42,9 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
  * @date 2014-9-28
  */
 public class PublishImageActivity extends CommonActivity implements
-		OnClickListener, OnGlobalLayoutListener {
+		OnClickListener, OnGlobalLayoutListener, OnResponseListener {
 	private final String CONSTANTLOG = "publishImageActivity:";
-
+	private final String TAG = "PublishImageActivity";
 	private RelativeLayout publish_image_layout;
 	private LinearLayout change_linear;
 	private EditText mText;
@@ -51,10 +54,11 @@ public class PublishImageActivity extends CommonActivity implements
 	private GridView mImagesGrid;
 	private ArrayList<CharSequence> mUrls;
 	private ArrayList<Integer> mEmojis;
-	private ImageButton mCompleteEdit;
+//	private ImageButton mCompleteEdit;
 	InputMethodManager inputManager;// 软键盘
-	private LinearLayout bottomLinear;
-	private int inputY;
+//	private LinearLayout bottomLinear;
+//	private int inputY;
+	private User user;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,35 +86,30 @@ public class PublishImageActivity extends CommonActivity implements
 		mEmojiPager = (ViewPager) findViewById(R.id.grid_pager);
 		mEmojiPager.setAdapter(new mGEmojiPagerAdapter(this));
 		mEmojiPager.setVisibility(View.GONE);
-		bottomLinear = (LinearLayout) findViewById(R.id.change_linear);
+//		bottomLinear = (LinearLayout) findViewById(R.id.change_linear);
 		Intent in = getIntent();
 		mUrls = in.getCharSequenceArrayListExtra("images");
-		mCompleteEdit = getActionBarRightButton();
+	/*	mCompleteEdit = getActionBarRightButton();
 		mCompleteEdit.setImageDrawable(getResources().getDrawable(
 				R.drawable.complete_campus_news));
 		mCompleteEdit.setVisibility(View.VISIBLE);
 		mCompleteEdit.setOnClickListener(this);
-		ImageLoaderConfiguration config = ImageLoaderConfiguration
+	*/	ImageLoaderConfiguration config = ImageLoaderConfiguration
 				.createDefault(this);
 		ImageLoader.getInstance().init(config);
 
+		user = XiaoYuanApp.getLoginUser(this);
+		
 		/* 接口测试 */
-		String pictures[] = new String[2];
+/*		String pictures[] = new String[2];
 		pictures[0] = "Environment.getExternalStorageDirectory()" + "/test.jpg";
 		pictures[1] = "Environment.getExternalStorageDirectory()" + "/test.jpg";
 		User loginUser = XiaoYuanApp.getLoginUser(this);
-		try {
-			UploadMsg upload = new UploadMsg(this, loginUser.userBean.uid,
-					"上传校园圈接口测试", 2, pictures);
-			upload.post();
-		} catch (UnsupportedEncodingException e) {
-
-			Log.i("mydebug", CONSTANTLOG + "UnsupportedEncodingException");
-		} catch (FileNotFoundException e) {
-
-			Log.i("mydebug", CONSTANTLOG + "FileNotFoundException");
-		}
-	}
+		AsyncHttpPost upload = new AsyncHttpPost("updatemsg", this,
+				loginUser.userBean.uid, "上传校园圈接口测试", 2, pictures);
+		upload.post();
+*/
+}
 
 	/**
 	 * 照片适配器
@@ -163,6 +162,7 @@ public class PublishImageActivity extends CommonActivity implements
 			} else {
 				viewHolder = (ViewHolder) convertView.getTag();
 			}
+			Log.d(TAG, "url path="+(String) getItem(position));
 			ImageLoader.getInstance().displayImage((String) getItem(position),
 					viewHolder.imageView);
 			return convertView;
@@ -297,7 +297,26 @@ public class PublishImageActivity extends CommonActivity implements
 		}
 
 	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.publish_text, menu);
+		return true;
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_send:
+			Log.d(TAG, "发布图文");
+			new AsyncHttpPost("updatemsg",this,user.userBean.getUid(), mText.getText().toString(), mUrls.size(), mUrls).post();
+			Log.d(TAG, "pic size="+mUrls.size());
+			finish();
+			break;
 
+		default:
+			break;
+		}
+		return true;
+	}
 	/*
 	 * @see android.view.View.OnClickListener#onClick(android.view.View)
 	 */
@@ -354,6 +373,31 @@ public class PublishImageActivity extends CommonActivity implements
 			mEmojiPager.setLayoutParams(params);
 		}
 
+	}
+
+	/*
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
+
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec, String id) {
+	}
+
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
 	}
 
 }

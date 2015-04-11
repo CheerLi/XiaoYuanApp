@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.myxiaoapp.utils.LocationHelper;
 import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
 import com.myxiaoapp.utils.Utils;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 /**
  * 启动Activity,主要完成以下事情：
@@ -39,7 +40,8 @@ public class StartActivity extends BaseActivity {
 		// 绑定百度云推送账号
 		// PushManager.startWork(this, PushConstants.LOGIN_TYPE_API_KEY,
 		// RestApi.API_KEY);
-
+		
+		
 		startActivity(new Intent(this, LoginActivity.class));
 		finish();
 	}

@@ -22,8 +22,8 @@ public class LocationHelper {
 	private GetLocationListener mGetListener;
 	private Timer mTimer;
 	private TimerTask mTimerTask;
-	private boolean isLocationOk ;
-	
+	private boolean isLocationOk;
+
 	private static final int GPS_TIME = 10000;
 
 	public LocationHelper(Context context) {

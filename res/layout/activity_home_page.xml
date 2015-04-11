@@ -71,7 +71,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_focus"         			
-	               		android:text="209" />
+	               		android:text="0" />
                 </LinearLayout>
 
                 <View
@@ -107,13 +107,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_fans"
-                        android:text="11214" />
+                        android:text="0" />
                 </LinearLayout>
             </LinearLayout>
 
             <!-- 昵称 -->
 
             <RelativeLayout
+                android:id="@+id/nameLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -134,9 +135,7 @@
                     android:id="@+id/name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/nickname"
-                    android:drawableRight="@drawable/male"
-                    android:text="轻风抚面" />
+                    android:layout_toRightOf="@id/nickname" />
             </RelativeLayout>
             <!-- 下划线 -->
 <!-- 
@@ -150,6 +149,7 @@
            
  --> 		<!-- 学校 -->
             <RelativeLayout
+                android:id="@+id/schoolLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -171,7 +171,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/school_label"
-                    android:text="广东工业大学" />
+                    android:text="" />
             </RelativeLayout>
 
             <!-- 下划线 -->
@@ -186,6 +186,7 @@
  --> 
                <!-- 个性签名 -->
             <LinearLayout
+                android:id="@+id/signLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -205,7 +206,7 @@
                     android:id="@+id/person_sign"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="我是一只小小小小鸟，我要飞得更高"
+                    android:text=""
                     android:textSize="@dimen/textSize_small" />
             </LinearLayout>
 
@@ -233,7 +234,6 @@
                     android:id="@+id/go_person_campus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_rect_border"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="8dp" >

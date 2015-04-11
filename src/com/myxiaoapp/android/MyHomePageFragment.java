@@ -1,6 +1,11 @@
 package com.myxiaoapp.android;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
+import java.net.URLEncoder;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -19,40 +25,49 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.myxiaoapp.adapter.PhotoAdapter;
+import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.User;
-import com.myxiaoapp.network.GetUserInfo;
-import com.myxiaoapp.network.GetUserInfo.GetUserInfoBean;
+import com.myxiaoapp.model.UserBean;
+import com.myxiaoapp.model.UserInfoBean;
+import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.JSONHelper;
 
 /**
  * 注意：修改布局文件时请保留id不变 —— mark by jzj
  */
-public class MyHomePageFragment extends Fragment implements OnClickListener,
-		OnItemClickListener {
+public class MyHomePageFragment extends Fragment implements OnClickListener, OnResponseListener {
 
-	private static final String TAG = "mydebug";
+	private static final String TAG = "MyHomePageFragment";
 
 	private ImageView mPortrait; // 头像
+	private RelativeLayout nameLayout;
 	private TextView mName; // 昵称或备注
+	private RelativeLayout schoolLayout;
 	private TextView mSchool; // 学校
+	private LinearLayout signLayout;
 	private TextView mPersonalSign; // 个性签名
 	private LinearLayout mFocus; // 他的关注
 	private LinearLayout mFans; // 他的粉丝
-	private GridView mPhotoAlbum; // 个人相册
+//	private GridView mPhotoAlbum; // 个人相册
 	private GridView mPhotoMood;// 校园心情附带的照片
+	private PhotoAdapter photoAdapter;
 	private Button mGoFocus; // 关注
 	private Button mGoChat; // 聊天
 	private LinearLayout personCampus;// 个人校园圈
-
-	private static final int MODIFIY_PERSONAL_SIGN = 1;
+	private UserInfoBean userInfoBean;
+	private UserBean userBean;
+	
+	private static final int MODIFY_NICKNAME = 1;
+	private static final int MODIFY_SCHOOL = 2;
+	private static final int MODIFY_PERSONAL_SIGN = 3;
 
 	private static final int WHAT_GET_USER_INFO = 0;
-	private GetUserInfoBean getUserInfoBean;
-
-	private Handler homeHandler;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,26 +76,32 @@ public class MyHomePageFragment extends Fragment implements OnClickListener,
 				false);
 		findView(view);
 		getDetail();
-		homeHandler = new HomePageHandler(this);
 		return view;
 	}
 
 	private void findView(View view) {
 		mPortrait = (ImageView) view.findViewById(R.id.portrait);
+		nameLayout = (RelativeLayout)view.findViewById(R.id.nameLayout);
+		nameLayout.setOnClickListener(this);
 		mName = (TextView) view.findViewById(R.id.name);
+		mName.setOnClickListener(this);
+		
+		schoolLayout = (RelativeLayout)view.findViewById(R.id.schoolLayout);
+		schoolLayout.setOnClickListener(this);
 		mSchool = (TextView) view.findViewById(R.id.school);
+		
+		signLayout = (LinearLayout)view.findViewById(R.id.signLayout);
+		signLayout.setOnClickListener(this);
 		mPersonalSign = (TextView) view.findViewById(R.id.person_sign);
+		
 		mFocus = (LinearLayout) view.findViewById(R.id.tv_focus_number);
 		mFocus.setOnClickListener(this);
 		mFans = (LinearLayout) view.findViewById(R.id.tv_fans_number);
 		mFans.setOnClickListener(this);
-		mPhotoAlbum = (GridView) view.findViewById(R.id.gv_photo_album);
-		mPhotoAlbum
-				.setAdapter(new PhotoAdapter(getActivity(), Constant.FLAG_ME));
+	//	mPhotoAlbum = (GridView) view.findViewById(R.id.gv_photo_album);
+	//	mPhotoAlbum.setAdapter(new PhotoAdapter(getActivity(), Constant.FLAG_ME));
 		mPhotoMood = (GridView) view.findViewById(R.id.gv_photo_mood);
-		mPhotoMood
-				.setAdapter(new PhotoAdapter(getActivity(), Constant.FLAG_ME));
-		mPhotoMood.setOnItemClickListener(this);
+		mPhotoMood.setAdapter(new PhotoAdapter(getActivity(), Constant.FLAG_ME));
 		mGoFocus = (Button) view.findViewById(R.id.go_focus);
 		mGoFocus.setVisibility(View.GONE);
 		mGoChat = (Button) view.findViewById(R.id.go_chat);
@@ -94,88 +115,137 @@ public class MyHomePageFragment extends Fragment implements OnClickListener,
 		User loginUser = XiaoYuanApp.getLoginUser(getActivity());
 		Intent intent;
 		switch (v.getId()) {
-		case R.id.personal_sign:
-			startActivityForResult(new Intent(getActivity(),
-					ModifyPersonalSignActivity.class), MODIFIY_PERSONAL_SIGN);
+		case R.id.nameLayout:
+			Intent iName = new Intent(getActivity(), ModifyPersonalSignActivity.class);
+			iName.setFlags(MODIFY_NICKNAME);
+			startActivityForResult(iName, MODIFY_NICKNAME);
+			break;
+		case R.id.schoolLayout:
+			Intent iSchool = new Intent(getActivity(), ModifyPersonalSignActivity.class);
+			iSchool.setFlags(MODIFY_SCHOOL);
+			startActivityForResult(iSchool, MODIFY_SCHOOL);
+			break;
+		case R.id.signLayout:
+			Intent iSign = new Intent(getActivity(), ModifyPersonalSignActivity.class);
+			iSign.setFlags(MODIFY_PERSONAL_SIGN);
+			startActivityForResult(iSign, MODIFY_PERSONAL_SIGN);
 			break;
 		case R.id.tv_fans_number:
 			intent = new Intent(getActivity(), PersonListActivity.class);
-			intent.putExtra("user_id", loginUser.userBean.uid);
-			intent.putExtra("follow_id", loginUser.userBean.uid);
+			intent.putExtra("user_id", loginUser.userBean.getUid());
+			intent.putExtra("follow_id", loginUser.userBean.getUid());
 			intent.setFlags(0);
 			startActivity(intent);
 			break;
 		case R.id.tv_focus_number:
 			intent = new Intent(getActivity(), PersonListActivity.class);
-			intent.putExtra("user_id", loginUser.userBean.uid);
-			intent.putExtra("follow_id", loginUser.userBean.uid);
+			intent.putExtra("user_id", loginUser.userBean.getUid());
+			intent.putExtra("follow_id", loginUser.userBean.getUid());
 			intent.setFlags(1);
 			startActivity(intent);
 			break;
 		case R.id.go_person_campus:
-			startActivity(new Intent(getActivity(), MessageActivity.class));
+			Intent i = new Intent(getActivity(), CampusNewsActivity.class);
+			i.setFlags(Constant.FLAG_ME);
+			startActivity( i );
 			break;
 		default:
 			break;
 		}
 	}
 
-	/*
-	 * @see
-	 * android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget
-	 * .AdapterView, android.view.View, int, long)
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-			long id) {
-		startActivity(new Intent(getActivity(), MessageActivity.class));
-
-	}
+	
 
 	private void getDetail() {
-		User user = XiaoYuanApp.getLoginUser(getActivity());
-		Log.d(TAG, user.userBean.uid);
-		GetUserInfo getUserInfo = new GetUserInfo(getActivity(),
-				user.userBean.uid, user.userBean.uid, homeHandler,
-				WHAT_GET_USER_INFO);
-		getUserInfo.post();
+		User user = XiaoYuanApp.getLoginUser(getActivity()); 
+		Log.d(TAG, user.userBean.getUid());
+		new AsyncHttpPost("Getinfo", this,user.userBean.getUid(), user.userBean.getUid()).post();
 	}
 
 	private void updateUI() {
-		if (getUserInfoBean == null)
+		if (userBean == null)
 			return;
-		mName.setText(getUserInfoBean.user.name);
-		mSchool.setText(getUserInfoBean.user.college);
-		String moto = getUserInfoBean.user.moto;
+		mName.setText(userBean.getName());
+		mSchool.setText(userBean.getCollege());
+		String moto = userBean.getMoto();
 		if (TextUtils.isEmpty(moto) || moto.equals("null")) {
 			moto = "签名还在酝酿中...";
 		}
-		mPersonalSign.setText(moto);
-
+		//mPersonalSign.setText(moto);
+		photoAdapter = new PhotoAdapter(getActivity(),Constant.FLAG_ME);
+		photoAdapter.setLastSPics(userInfoBean.getLast_pic_list());
+		mPhotoMood.setAdapter(photoAdapter);
 	}
 
-	private static class HomePageHandler extends Handler {
-		private WeakReference<MyHomePageFragment> mOuter;
+	/*
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+		Log.d(TAG, statusCode+"");
+	}
 
-		public HomePageHandler(MyHomePageFragment homeFragment) {
-			mOuter = new WeakReference<MyHomePageFragment>(homeFragment);
-		}
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec, String id) {
+		Log.d(TAG, "rec="+rec);
+		Gson gson = new Gson();
+		userInfoBean = gson.fromJson(rec, UserInfoDataBean.class).getData();
+		Log.d(TAG, userInfoBean.toString());
+		userBean = userInfoBean.getUser();
+		userBean.setName(userBean.getName());
+		userBean.setCollege(userBean.getCollege());
+		updateUI();
+	}
 
-		@Override
-		public void handleMessage(Message msg) {
-			MyHomePageFragment homeFragment = mOuter.get();
-			if (homeFragment == null)
-				return;
-
-			switch (msg.what) {
-			case WHAT_GET_USER_INFO:
-				homeFragment.getUserInfoBean = (GetUserInfoBean) msg.obj;
-				homeFragment.updateUI();
-				break;
-
-			default:
-				break;
-			}
-		}
+	/*
+	 * @see
+	 * com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.
+	 * String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
+		Log.d(TAG, rec);
+	}
+	/* 
+	 * @see android.support.v4.app.Fragment#onActivityResult(int, int, android.content.Intent)
+	 */
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {	
+		super.onActivityResult(requestCode, resultCode, data);
+		if(data == null) return ;
+		Log.d(TAG,"resultCode ="+resultCode);
+		String modify = data.getStringExtra("modify");
+		String nickName = null;
+		String school = null;
+		String moto = null;
+		if(resultCode == MODIFY_NICKNAME){
+			if(modify == mName.getText().toString() || modify.equals("")) return;
+			mName.setText(modify);
+			nickName = modify;
+		}else if(resultCode == MODIFY_SCHOOL){
+			if(modify == mSchool.getText().toString() || modify.equals("")) return;
+			mSchool.setText(modify);
+			school = modify;
+		}else if(resultCode == MODIFY_PERSONAL_SIGN){
+			if(modify == mPersonalSign.getText().toString() || modify.equals("")) return;
+			mPersonalSign.setText(modify);
+			moto = modify;
+		} 
+		 
+			new AsyncHttpPost("updateinfo", this, 
+					XiaoYuanApp.getLoginUser(getActivity()).userBean.getUid(), 
+					null, 
+					null, 
+					null,
+					nickName,
+					moto,
+					null)
+			.post(); 
+		Log.d(TAG, "向后台修改信息");
 	}
 }

@@ -37,9 +37,9 @@ public class PushMessageReceiver extends FrontiaPushMessageReceiver {
 			editor.putString("chat_user_id", userId);
 			editor.putString("chat_channel_id", channelId);
 			editor.commit();
-//			if (!XiaoYuanApp.isLogin) {
-//				redirectToLogin(context);
-//			}
+			// if (!XiaoYuanApp.isLogin) {
+			// redirectToLogin(context);
+			// }
 			// 查询离线消息
 			// ChatHelper chatHelper = new ChatHelper();
 			// chatHelper.fetchMessage(XiaoYuanApp.getLoginUser(context).getChatUserId());

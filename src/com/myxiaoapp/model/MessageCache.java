@@ -31,15 +31,15 @@ public class MessageCache {
 
 	public void more() {
 		capacity += DEFAULT_CAPACITY;
-		Handler handler = new Handler(){
+		Handler handler = new Handler() {
 			public void handleMessage(android.os.Message msg) {
-				
+
 			};
 		};
-		
-		new Thread(){
+
+		new Thread() {
 			public void run() {
-				 
+
 			};
 		}.start();
 	}

@@ -9,8 +9,7 @@
        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clickable="true"
-        android:contentDescription="@null"
-        android:src="@drawable/campus_comment1"
+        android:contentDescription="@null" 
         android:focusable="true"
         android:scaleType="fitXY" />
 </LinearLayout>

@@ -10,8 +10,9 @@ import android.test.AndroidTestCase;
 import android.util.Log;
 
 public class UnitTest extends AndroidTestCase {
-	public void testCheckPhoneParams(){
-		RequestParams params=HttpRequestParams.checkPhoneParams("18825193807");
+	public void testCheckPhoneParams() {
+		RequestParams params = HttpRequestParams
+				.checkPhoneParams("18825193807");
 		Log.i("mydebug", params.toString());
 	}
 }

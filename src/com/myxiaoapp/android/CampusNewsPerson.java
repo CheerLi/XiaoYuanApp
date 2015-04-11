@@ -5,6 +5,7 @@
 package com.myxiaoapp.android;
 
 import com.myxiaoapp.adapter.CampusNewsAdapter;
+import com.myxiaoapp.utils.Constant;
 import com.myxiaoapp.utils.Utils;
 import com.pulltorefresh.library.PullToRefreshBase;
 import com.pulltorefresh.library.PullToRefreshListView;
@@ -19,30 +20,32 @@ import android.widget.ListView;
 
 /**
  * @author ken
- *
+ * 
  */
-public class CampusNewsPerson extends CommonActivity{
+public class CampusNewsPerson extends CommonActivity {
 
 	private Context mContext;
 	private ListView mListView;
 	private PullToRefreshListView mPullToRefreshListView;
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState){
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_campus_person);
 		setActionBarTitle("Angelababy");
 		mContext = this;
 		init();
 	}
-	private void init(){
+
+	private void init() {
 		showBackButton();
 		mPullToRefreshListView = (PullToRefreshListView) findViewById(R.id.campus_news_list);
 		mPullToRefreshListView.setMode(Mode.BOTH);
 		mPullToRefreshListView.setOnRefreshListener(refreshListener);
 		mListView = mPullToRefreshListView.getRefreshableView();
-		mListView.setAdapter(new CampusNewsAdapter(this));
+		mListView.setAdapter(new CampusNewsAdapter(this,Constant.FLAG_Discovery));
 	}
-	
+
 	private OnRefreshListener<ListView> refreshListener = new OnRefreshListener<ListView>() {
 
 		@Override

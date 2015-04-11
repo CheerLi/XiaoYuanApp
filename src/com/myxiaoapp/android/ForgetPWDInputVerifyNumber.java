@@ -42,7 +42,6 @@ public class ForgetPWDInputVerifyNumber extends CommonActivity implements
 
 	}
 
-	
 	private boolean check() {
 		// 检查验证码是否正确
 		return true;

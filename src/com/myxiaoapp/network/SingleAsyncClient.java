@@ -8,13 +8,13 @@ import com.loopj.android.http.AsyncHttpClient;
 
 /**
  * @author ken
- *
+ * 
  */
 public class SingleAsyncClient {
 
 	private static AsyncHttpClient singleClient = new AsyncHttpClient();
-	
-	public static AsyncHttpClient getSingleClient(){
+
+	public static AsyncHttpClient getSingleClient() {
 		return singleClient;
 	}
 }

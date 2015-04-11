@@ -25,13 +25,15 @@ public class EncryptUtils {
 
 	/**
 	 * MD5签名
-	 * @param paramStr key-value pair，注意value需要url encode.
+	 * 
+	 * @param paramStr
+	 *            key-value pair，注意value需要url encode.
 	 * @return
 	 */
 	public static String signByMd5(String paramStr) {
 		// sign=md5(PREFEX +PARAMS+ KEY); 生成32位小写字符串
-		paramStr=Utils.sortParams(paramStr);
-		if(LogUtils.DEBUG){
+		paramStr = Utils.sortParams(paramStr);
+		if (LogUtils.DEBUG) {
 			Log.i("mydebug", paramStr);
 		}
 		try {
@@ -46,22 +48,23 @@ public class EncryptUtils {
 		}
 		return null;
 	}
-	
-	
+
 	final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
 	/**
 	 * 将bytes数组转换成小写的十六进制
+	 * 
 	 * @param bytes
 	 * @return
 	 */
 	public static String bytesToHex(byte[] bytes) {
-	    char[] hexChars = new char[bytes.length * 2];
-	    for ( int j = 0; j < bytes.length; j++ ) {
-	        int v = bytes[j] & 0xFF;
-	        hexChars[j * 2] = hexArray[v >>> 4];
-	        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-	    }
-	    return new String(hexChars).toLowerCase(Locale.ENGLISH);
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars).toLowerCase(Locale.ENGLISH);
 	}
-	
+
 }

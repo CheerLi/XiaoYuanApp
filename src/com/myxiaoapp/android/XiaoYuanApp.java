@@ -196,7 +196,8 @@ public class XiaoYuanApp extends FrontiaApplication {
 	 */
 	public static User getLoginUser(Context context) {
 		if (!isLogin) {
-//			Toast.makeText(context, "登录超时，请重新登录!", Toast.LENGTH_SHORT).show();
+			// Toast.makeText(context, "登录超时，请重新登录!",
+			// Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(context, LoginActivity.class);
 			context.startActivity(intent);
 			((Activity) context).finish();

@@ -26,20 +26,21 @@ public class DiscoveryFragment extends Fragment implements OnClickListener {
 		mMyCourseTableLayout = (RelativeLayout) view
 				.findViewById(R.id.my_class_table_layout);
 		mMyCourseTableLayout.setOnClickListener(this);
-		mCampusMoodLayout = (RelativeLayout) view.findViewById(R.id.campus_mood_layout);
+		mCampusMoodLayout = (RelativeLayout) view
+				.findViewById(R.id.campus_mood_layout);
 		mCampusMoodLayout.setOnClickListener(this);
 		return view;
 	}
 
 	@Override
 	public void onClick(View v) {
-	//	Log.i("mydebug", "here");
+		// Log.i("mydebug", "here");
 		switch (v.getId()) {
 		case R.id.my_class_table_layout:
-			startActivity(new Intent(getActivity(),CourseTableActivity.class));
+			startActivity(new Intent(getActivity(), CourseTableActivity.class));
 			break;
 		case R.id.campus_mood_layout:
-			Intent intent = new Intent(getActivity(),CampusNewsActivity.class);
+			Intent intent = new Intent(getActivity(), CampusNewsActivity.class);
 			intent.setFlags(Constant.FLAG_Discovery);
 			startActivity(intent);
 			break;

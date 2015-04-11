@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.util.Log;
 
@@ -18,7 +20,7 @@ import com.myxiaoapp.utils.EncryptUtils;
  * 
  */
 public class HttpRequestParams {
-
+	private final static String TAG = "HttpRequestParams";
 	protected static RequestParams getBaseParams() {
 		RequestParams params = new RequestParams();
 		params.put("iemi", XiaoYuanApp.deviceId);
@@ -42,6 +44,16 @@ public class HttpRequestParams {
 		return loginParams;
 	}
 
+	public static RequestParams nearbyUserParams(String lat, String lng, String page){
+		RequestParams params = getBaseParams();
+		params.put("latitude", lat);
+		params.put("longitude", lng);
+		params.put("page", page);
+		String sign = getSignByMd5(params);
+		params.put("sign", sign);
+		return params;
+		
+	}
 	public static RequestParams getSchoolParams() {
 		RequestParams schoolParams = getBaseParams();
 		return schoolParams;
@@ -64,7 +76,7 @@ public class HttpRequestParams {
 		registerParams.put("phone", RegisterInfo.getPhone());
 		registerParams.put("username", RegisterInfo.getPhone());
 		registerParams.put("password", RegisterInfo.getPassword());
-		registerParams.put("nickname", RegisterInfo.getNickname());
+		registerParams.put("name", RegisterInfo.getNickname());
 
 		String sign = getSignByMd5(registerParams);
 		registerParams.put("sign", sign);
@@ -220,7 +232,7 @@ public class HttpRequestParams {
 			String interest_id) {
 		RequestParams params = getBaseParams();
 		params.put("user_id", user_id);
-		params.put("interest_name", interest_id);
+		params.put("interest_id", interest_id);
 		String sign = getSignByMd5(params);
 		params.put("sign", sign);
 		return params;
@@ -277,13 +289,17 @@ public class HttpRequestParams {
 	 * @throws UnsupportedEncodingException
 	 */
 	public static RequestParams remarkFriendsParams(String user_id,
-			String follow_id, String remark_name)
-			throws UnsupportedEncodingException {
+			String follow_id, String remark_name) {
 		RequestParams params = getBaseParams();
 		params.put("user_id", user_id);
 		params.put("follow_id", follow_id);
-		params.put("remark_name",
-				URLEncoder.encode(remark_name, Constant.charSet));
+		try {
+			params.put("remark_name",
+					URLEncoder.encode(remark_name, Constant.charSet));
+		} catch (UnsupportedEncodingException e) {
+
+			e.printStackTrace();
+		}
 		String sign = getSignByMd5(params);
 		params.put("sign", sign);
 		return params;
@@ -417,20 +433,60 @@ public class HttpRequestParams {
 	 * @throws FileNotFoundException
 	 */
 	public static RequestParams uploadMsg(String user_id, String message_info,
-			int pic_count, String pics[]) throws UnsupportedEncodingException,
-			FileNotFoundException {
+			int pic_count, ArrayList<CharSequence> pics)  {
 		RequestParams params = getBaseParams();
 		params.put("user_id", user_id);
-		params.put("message_info",
-				URLEncoder.encode(message_info, Constant.charSet));
-		params.put("pic_count", pic_count);
-		String sign = getSignByMd5(params);
-		for (int i = 0; i < pic_count; i++) {
-			params.put("picture" + i, new File(pics[i]), "jpeg");
+		try {
+			params.put("message_info", URLEncoder.encode(message_info, Constant.charSet));
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
 		}
-
+		params.put("pic_count", pic_count);
+		if(pic_count == 0){
+			params.put("picture", new String[0]);
+		}
+		String sign = getSignByMd5(params);
 		params.put("sign", sign);
+		for (int i = 0; i < pic_count; i++) {
+			try {
+				Log.d(TAG, "url path="+(String) pics.get(i));
+				params.put("picture" + i, new File(((String) pics.get(i)).replaceAll("file:///", "")));
+			} catch (FileNotFoundException e) {
+				Log.d(TAG, "FileNotFoundException");
+				e.printStackTrace();
+			}
+		}
+		Log.d(TAG, params.toString());
 		return params;
+	}
+	
+	public static RequestParams updateinfo(String user_id, String insert_count, List<String> picList, String del_pictures,
+			String nike_name, String moto, String affective){
+		RequestParams params = getBaseParams();
+		params.put("user_id", user_id);
+		params.put("insert_count", insert_count);
+		params.put("picture", picList);
+		params.put("del_pictures", del_pictures);
+		Log.d(TAG, "nickname="+nike_name);
+		try {
+			if(nike_name != null && !nike_name.equals("")){
+				params.put("nike_name", URLEncoder.encode(nike_name, Constant.charSet));
+			}			
+			if(moto != null && !moto.equals("")){
+				params.put("moto", URLEncoder.encode(moto, Constant.charSet));
+			}
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
+		
+		params.put("affective", affective);
+		String sign = getSignByMd5(params);
+		params.put("sign", sign);
+		Log.d(TAG, params.toString());
+		return params;
+		
 	}
 
 	/**
@@ -505,10 +561,10 @@ public class HttpRequestParams {
 	 *            被点赞用户id
 	 * @return
 	 */
-	public static RequestParams addLike(String user_id, String usered_id) {
+	public static RequestParams addLike(String msg_id, String user_id) {
 		RequestParams params = getBaseParams();
+		params.put("msg_id", msg_id);
 		params.put("user_id", user_id);
-		params.put("usered_id", usered_id);
 		String sign = getSignByMd5(params);
 		params.put("sign", sign);
 		return params;
