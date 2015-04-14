@@ -88,8 +88,12 @@ public class CampusNewsAdapter extends BaseAdapter implements OnClickListener, O
 	}
 
 	@Override
-	public Object getItem(int position) {
+	public MomentBean getItem(int position) {
 		return datas.get(position);
+	}
+	public void remove(int position){
+		datas.remove(position);
+		notifyDataSetChanged();
 	}
 
 	@Override
@@ -155,7 +159,7 @@ public class CampusNewsAdapter extends BaseAdapter implements OnClickListener, O
 			viewHolder.delete = (TextView) convertView
 					.findViewById(R.id.delete);
 			viewHolder.delete.setOnClickListener(this);
-			if (flag == Constant.FLAG_ME) {
+			if (((CampusNewsActivity)mContext).getUid().equals(XiaoYuanApp.getLoginUser(mContext).userBean.getUid())) {
 				viewHolder.delete.setVisibility(View.VISIBLE);
 			}
 
@@ -168,7 +172,7 @@ public class CampusNewsAdapter extends BaseAdapter implements OnClickListener, O
 		viewHolder.commonNewsLayout.setTag(position);
 		viewHolder.like_c.setTag(datas.get(position).getM_id());
 		viewHolder.comment_c.setTag(position);
-		viewHolder.delete.setTag(datas.get(position).getM_id());
+		viewHolder.delete.setTag(position);
 		/*
 		 * if (position == 0) { // 显示封面
 		 * viewHolder.commonNewsLayout.setVisibility(View.GONE);
@@ -192,7 +196,11 @@ public class CampusNewsAdapter extends BaseAdapter implements OnClickListener, O
 		SimpleDateFormat sdf=new SimpleDateFormat("MM-dd hh:mm");    
 		String sd = sdf.format(new Date(Long.parseLong(bean.getM_time())*1000));
 		holder.dateTime.setText(sd);
-		holder.newsContent.setText(bean.getM_info());
+		if(bean.getM_info().equals("")){
+			holder.newsContent.setVisibility(View.GONE);
+		}else{
+			holder.newsContent.setText(bean.getM_info());
+		}	
 		holder.like_c.setText(bean.getM_likesnum());
 		holder.comment_c.setText(bean.getM_commentnum());
 		holder.newsPhotos.setAdapter(holder.photoAdapter);

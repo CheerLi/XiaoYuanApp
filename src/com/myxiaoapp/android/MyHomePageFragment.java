@@ -3,6 +3,7 @@ package com.myxiaoapp.android;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.net.URLEncoder;
+import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.myxiaoapp.adapter.PhotoAdapter;
 import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.model.MomentBean;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.model.UserBean;
 import com.myxiaoapp.model.UserInfoBean;
@@ -41,7 +43,7 @@ import com.myxiaoapp.utils.JSONHelper;
 /**
  * 注意：修改布局文件时请保留id不变 —— mark by jzj
  */
-public class MyHomePageFragment extends Fragment implements OnClickListener, OnResponseListener {
+public class MyHomePageFragment extends Fragment implements OnClickListener, OnResponseListener, OnItemClickListener {
 
 	private static final String TAG = "MyHomePageFragment";
 
@@ -53,10 +55,14 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 	private LinearLayout signLayout;
 	private TextView mPersonalSign; // 个性签名
 	private LinearLayout mFocus; // 他的关注
+	private TextView fol_counts;
 	private LinearLayout mFans; // 他的粉丝
+	private TextView fan_counts;
 //	private GridView mPhotoAlbum; // 个人相册
+	private TextView mTextMood;
 	private GridView mPhotoMood;// 校园心情附带的照片
 	private PhotoAdapter photoAdapter;
+
 	private Button mGoFocus; // 关注
 	private Button mGoChat; // 聊天
 	private LinearLayout personCampus;// 个人校园圈
@@ -96,12 +102,20 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 		
 		mFocus = (LinearLayout) view.findViewById(R.id.tv_focus_number);
 		mFocus.setOnClickListener(this);
+		fol_counts = (TextView)view.findViewById(R.id.foc_counts);
+		
 		mFans = (LinearLayout) view.findViewById(R.id.tv_fans_number);
 		mFans.setOnClickListener(this);
+		fan_counts = (TextView)view.findViewById(R.id.fan_counts);
 	//	mPhotoAlbum = (GridView) view.findViewById(R.id.gv_photo_album);
 	//	mPhotoAlbum.setAdapter(new PhotoAdapter(getActivity(), Constant.FLAG_ME));
+
+		mTextMood = (TextView) view.findViewById(R.id.campus_mood);
+		mTextMood.setOnClickListener(this);
 		mPhotoMood = (GridView) view.findViewById(R.id.gv_photo_mood);
-		mPhotoMood.setAdapter(new PhotoAdapter(getActivity(), Constant.FLAG_ME));
+		photoAdapter = new PhotoAdapter(getActivity(),Constant.FLAG_ME);
+		mPhotoMood.setAdapter(photoAdapter);
+		mPhotoMood.setOnItemClickListener(this);
 		mGoFocus = (Button) view.findViewById(R.id.go_focus);
 		mGoFocus.setVisibility(View.GONE);
 		mGoChat = (Button) view.findViewById(R.id.go_chat);
@@ -144,7 +158,7 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 			intent.setFlags(1);
 			startActivity(intent);
 			break;
-		case R.id.go_person_campus:
+		case R.id.campus_mood:
 			Intent i = new Intent(getActivity(), CampusNewsActivity.class);
 			i.setFlags(Constant.FLAG_ME);
 			startActivity( i );
@@ -155,7 +169,9 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 	}
 
 	
-
+	public String getUid(){
+		return userBean.getUid();
+	}
 	private void getDetail() {
 		User user = XiaoYuanApp.getLoginUser(getActivity()); 
 		Log.d(TAG, user.userBean.getUid());
@@ -165,16 +181,20 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 	private void updateUI() {
 		if (userBean == null)
 			return;
+		fol_counts.setText(userBean.getFol_counts());
+		fan_counts.setText(userBean.getFan_counts());
 		mName.setText(userBean.getName());
 		mSchool.setText(userBean.getCollege());
 		String moto = userBean.getMoto();
 		if (TextUtils.isEmpty(moto) || moto.equals("null")) {
 			moto = "签名还在酝酿中...";
 		}
-		//mPersonalSign.setText(moto);
-		photoAdapter = new PhotoAdapter(getActivity(),Constant.FLAG_ME);
-		photoAdapter.setLastSPics(userInfoBean.getLast_pic_list());
-		mPhotoMood.setAdapter(photoAdapter);
+		
+		mPersonalSign.setText(moto);
+		List<MomentBean> lastMoments= userInfoBean.getLast_moments();
+		if(lastMoments.size() > 0){
+			photoAdapter.setLastPics(lastMoments.get(0).getM_spictures(), lastMoments.get(0).getM_pictures());
+		}
 	}
 
 	/*
@@ -193,13 +213,21 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 	@Override
 	public void onReceiveSuccess(String rec, String id) {
 		Log.d(TAG, "rec="+rec);
-		Gson gson = new Gson();
-		userInfoBean = gson.fromJson(rec, UserInfoDataBean.class).getData();
-		Log.d(TAG, userInfoBean.toString());
-		userBean = userInfoBean.getUser();
-		userBean.setName(userBean.getName());
-		userBean.setCollege(userBean.getCollege());
-		updateUI();
+		switch(id){
+		case "Getinfo":
+			Gson gson = new Gson();
+			userInfoBean = gson.fromJson(rec, UserInfoDataBean.class).getData();
+			Log.d(TAG, userInfoBean.toString());
+			userBean = userInfoBean.getUser();
+			userBean.setName(userBean.getName());
+			userBean.setCollege(userBean.getCollege());
+			updateUI();
+			break;
+		case "updateinfo":
+			break;
+		default:
+			break;
+		}
 	}
 
 	/*
@@ -247,5 +275,16 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 					null)
 			.post(); 
 		Log.d(TAG, "向后台修改信息");
+	}
+
+	/* 
+	 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+	 */
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		Intent i = new Intent(getActivity(), CampusNewsActivity.class);
+		i.setFlags(Constant.FLAG_ME);
+		startActivity( i );
 	}
 }

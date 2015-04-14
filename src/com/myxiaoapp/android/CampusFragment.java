@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.baidu.location.BDLocation;
 import com.google.gson.Gson;
 import com.myxiaoapp.adapter.CampusPeopleAdapter;
 import com.myxiaoapp.listener.OnResponseListener;
@@ -55,7 +56,7 @@ public class CampusFragment extends Fragment implements OnClickListener,
 				container, false); 
 		mPullToRefreshListView = (PullToRefreshListView) view
 				.findViewById(R.id.people_list);
-		mPullToRefreshListView.setMode(Mode.BOTH);
+		mPullToRefreshListView.setMode(Mode.PULL_FROM_START);
 		mPullToRefreshListView.setOnRefreshListener(this);
 		mPeopleList = mPullToRefreshListView.getRefreshableView();
 		peopleAdapter = new CampusPeopleAdapter(
@@ -118,9 +119,9 @@ public class CampusFragment extends Fragment implements OnClickListener,
 	@Override
 	public void onRefresh(PullToRefreshBase<ListView> refreshView) {
 		if(mPullToRefreshListView.isHeaderShown()){
-			Location loc = new Location();
-			String lat = loc.latitude + "";
-			String lng = loc.longitude + "";
+			BDLocation loc = new BDLocation();
+			String lat = loc.getLatitude() + "";
+			String lng = loc.getLongitude() + "";
 			Log.d(TAG, "lat="+lat+",lng="+lng);
  			new AsyncHttpPost("nearbyusers",this,lat,lng,"1").post();
 		}else if(mPullToRefreshListView.isFooterShown()){
@@ -135,6 +136,7 @@ public class CampusFragment extends Fragment implements OnClickListener,
 	@Override
 	public void onFailure(int statusCode) {
 		Log.d(TAG, "statusCode="+statusCode);
+		mPullToRefreshListView.onRefreshComplete();
 	}
 
 	/* 
@@ -142,6 +144,7 @@ public class CampusFragment extends Fragment implements OnClickListener,
 	 */
 	@Override
 	public void onReceiveSuccess(String rec,String id) {
+		mPullToRefreshListView.onRefreshComplete();
 		Log.d(TAG,"rec="+rec);
 		Gson gson = new Gson();
 		switch(id){
@@ -167,6 +170,7 @@ public class CampusFragment extends Fragment implements OnClickListener,
 	 */
 	@Override
 	public void onReceiveFailure(String rec) {
+		mPullToRefreshListView.onRefreshComplete();
 		Log.d(TAG, "fail="+rec);
 	}
  

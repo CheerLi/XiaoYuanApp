@@ -29,7 +29,7 @@ public class FocusFansBean implements Serializable{
 	public String updatetime;
 	public String register_time;
 	public List<PicListBean> last_pic_list;
-	public List<MomentBean> last_moments;
+	public List<LastMomentBean> last_moments;
 	/**
 	 * @return the uid
 	 */
@@ -190,18 +190,15 @@ public class FocusFansBean implements Serializable{
 	/**
 	 * @return the last_moments
 	 */
-	public List<MomentBean> getLast_moments() {
+	public List<LastMomentBean> getLast_moments() {
 		return last_moments;
 	}
 	/**
 	 * @param last_moments the last_moments to set
 	 */
-	public void setLast_moments(List<MomentBean> last_moments) {
+	public void setLast_moments(List<LastMomentBean> last_moments) {
 		this.last_moments = last_moments;
 	}
-	/* 
-	 * @see java.lang.Object#toString()
-	 */
 	/* 
 	 * @see java.lang.Object#toString()
 	 */

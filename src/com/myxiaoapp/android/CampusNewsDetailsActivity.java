@@ -281,6 +281,9 @@ public class CampusNewsDetailsActivity extends CommonActivity implements
 	@Override
 	public void onReceiveSuccess(String rec, String id) {
 		switch(id){
+			case"delcomment":
+				Log.d(TAG, "删除评论成功");
+				break;
 			case "addlike":
 				Log.d(TAG, "点赞成功");
 				break;
@@ -319,23 +322,24 @@ public class CampusNewsDetailsActivity extends CommonActivity implements
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view,
 			int position, long id) {
+		String msg_id = bean.getM_id();
 		String comt_id =  ((CampusCrclCmtBean)mCommentAdapter.getItem(position)).getComt_id();
 		String uid_by =  ((CampusCrclCmtBean)mCommentAdapter.getItem(position)).getUid();
 		String user_id = XiaoYuanApp.getLoginUser(CampusNewsDetailsActivity.this).userBean.getUid();
 		if(uid_by.equals(user_id)){
-			createDialog(comt_id,uid_by,position);
+			createDialog(msg_id,comt_id,uid_by,position);
 		}
 		return true;
 	}
 	
-	public void createDialog(final String comt_id, final String uid_by, final int position){
+	public void createDialog(final String msg_id, final String comt_id, final String uid_by, final int position){
 		final CharSequence[] items = {"deleted"};   
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);  
 		//builder.setTitle("Pick a color");  
 		builder.setItems(items, new DialogInterface.OnClickListener() {  
 		    public void onClick(DialogInterface dialog, int item) {  
 		        Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();  
-		        new AsyncHttpPost("delcomment", CampusNewsDetailsActivity.this, comt_id, uid_by)
+		        new AsyncHttpPost("delcomment", CampusNewsDetailsActivity.this, msg_id, comt_id, uid_by)
 		        .post();
 		        mCommentAdapter.deleteItem(position);
 		        mCommentAdapter.notifyDataSetChanged();

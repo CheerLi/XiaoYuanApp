@@ -68,6 +68,7 @@
 	               		android:text="@string/focus" />
 
                     <TextView
+                        android:id="@+id/foc_counts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_focus"         			
@@ -104,6 +105,7 @@
                         android:text="@string/fans" />
 
                     <TextView
+                        android:id="@+id/fan_counts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_fans"
@@ -231,20 +233,22 @@
                     android:textSize="@dimen/textSize_small" />
 
                 <LinearLayout
-                    android:id="@+id/go_person_campus"
+                	android:id="@+id/go_person_campus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="vertical"
+                    android:descendantFocusability="afterDescendants"
                     android:padding="8dp" >
-<!-- 
+ 
                     <TextView
                         android:id="@+id/campus_mood"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
-                        android:text="今天捡到饭卡，谁的啊？？？" />
- -->
+                        android:text=""
+                        android:visibility="gone" />
+		
                     <com.myxiaoapp.view.MyGridView
                         android:id="@+id/gv_photo_mood"
                         android:layout_width="match_parent"

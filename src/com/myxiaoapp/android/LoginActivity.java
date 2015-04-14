@@ -25,6 +25,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.UserBean;
 import com.myxiaoapp.network.AsyncHttpPost;
@@ -198,6 +200,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 	}
 
 	private void loginSuccess(UserBean userBean) {
+		Log.d(TAG, userBean.toString());
 		mApp.setLoginUser(userBean);
 		mApp.saveInfo(userBean, Constant.SHARE_PRE_LOGIN_INFO);
 		startActivity(new Intent(LoginActivity.this, MainUIActivity.class));
@@ -271,19 +274,16 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 	public void onReceiveSuccess(String rec,String id) {
 		switch(id){
 		case "login":
-			JSONObject localJSONObject;
+			Gson gson = new Gson();
+			UserBean userBean = null;
 			try {
-				localJSONObject = new JSONObject(rec);
-				UserBean userBean = (UserBean) JSONHelper.parse(
-						localJSONObject.get("data"), UserBean.class);
-				loginSuccess(userBean);
-			} catch (JSONException e) {
-	
-				e.printStackTrace();
-			} catch (Exception e) {
-	
+				userBean = gson.fromJson(new JSONObject(rec).getJSONObject("data").toString(), UserBean.class);
+			} catch (JsonSyntaxException | JSONException e) {
+				
 				e.printStackTrace();
 			}
+			if(userBean != null)
+				loginSuccess(userBean);
 			break;
 		case "":
 			break;

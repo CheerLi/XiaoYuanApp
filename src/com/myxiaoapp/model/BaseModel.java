@@ -55,5 +55,13 @@ public class BaseModel {
 		return "BaseModel [errno=" + errno + ", message=" + message + "]";
 	}
 
+	/**
+	 * @return
+	 */
+	public int getResultCode() {
+		
+		return errno;
+	}
+
 	
 }

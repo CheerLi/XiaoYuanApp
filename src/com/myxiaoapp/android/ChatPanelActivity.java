@@ -1,5 +1,13 @@
 package com.myxiaoapp.android;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +21,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -29,22 +38,35 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+  
+import android.widget.Toast;
 
-import com.baidu.android.pushservice.PushConstants;
-import com.baidu.android.pushservice.PushManager;
-import com.myxiaoapp.adapter.ChatMsgAdapter;
-import com.myxiaoapp.chathelper.ChatHelper;
-import com.myxiaoapp.chathelper.ChatMessage;
-import com.myxiaoapp.chathelper.PushMessageReceiver;
-import com.myxiaoapp.chathelper.RestApi;
+import com.myxiaoapp.adapter.ChatMsgAdapter; 
+import com.myxiaoapp.model.BaseModel; 
+import com.myxiaoapp.model.ChatItem; 
 import com.myxiaoapp.model.User;
+import com.myxiaoapp.network.HttpRequestParam;
+import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.DataBaseHelper;
+import com.myxiaoapp.utils.DataManager;
 import com.myxiaoapp.utils.SQLiteHelper;
 import com.myxiaoapp.view.ExpressionPanel;
 import com.myxiaoapp.view.ExpressionPanel.OnExpressionClickListener;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.tencent.android.tpush.XGPushBaseReceiver;
+import com.tencent.android.tpush.XGPushClickedResult;
+import com.tencent.android.tpush.XGPushConfig;
+import com.tencent.android.tpush.XGPushRegisterResult;
+import com.tencent.android.tpush.XGPushShowedResult;
+import com.tencent.android.tpush.XGPushTextMessage;
 
 public class ChatPanelActivity extends CommonActivity implements
-		OnClickListener, OnTouchListener {
-
+		OnClickListener, OnTouchListener, OnExpressionClickListener  {
+	public static final String ACTION_RECEIVE_CHAT = "com.myxiaoapp.android.CharPanelActivity";
 	private static final String TAG = "mydebug";
 
 	private ListView mChatList;
@@ -56,19 +78,24 @@ public class ChatPanelActivity extends CommonActivity implements
 	private ImageView mAddExpression;
 
 	private ExpressionPanel mExpressionPanel;
-
-	private MessageReceiver messageReceiver;
-
-	private User mFirstUser;
-	private User mSecondUser;
-
+  
+	private String myId;
+	private String myName;
+	private String myPortraitUrl; 
+	private Bitmap myPortraitMap;
+	private String myToSendMessage;
+	
+	private String otherId;
+	private String otherName;
+	private String otherPortraitUrl;
+	private Bitmap otherPortraitMap;
+	
+	private String message;
+	
 	private InputMethodManager imm;
 
-	// test
-	private static final String FIRST_USER_ID = "589396412218359559";
-	private static final String FIRST_CHANNEL_ID = "4042017386297853232";
-	private static final String SECOND_USER_ID = "606844474145847127";
-	private static final String SECOND_USER_CHANNEL_ID = "4600684025511915918";
+	private ImageLoader imageLoader;
+	private DisplayImageOptions options;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -76,75 +103,110 @@ public class ChatPanelActivity extends CommonActivity implements
 		setContentView(R.layout.activity_chat_panel);
 		// setActionBarTitle("聊天");
 		init();
-
+	    DataManager.getInstance().setmFrontChat(otherId);
+	    Log.d(TAG, "otherId="+otherId+",otherName="+otherName);
+	    setActionBarTitle(otherName);
 	}
 
 	@Override
 	protected void onResume() {
-		super.onResume();
-		if (!PushManager.isPushEnabled(this)) {
-			PushManager.startWork(this, PushConstants.LOGIN_TYPE_API_KEY,
-					RestApi.API_KEY);
-		}
+		super.onResume(); 
 	}
 
 	private void init() {
 		mChatList = (ListView) findViewById(R.id.lv_chat_msg);
 		mChatList.setSelection(mChatList.getBottom());
 		mChatList.setOnTouchListener(this);
-		mInputText = (EditText) findViewById(R.id.et_input_text);
-		mInputText.addTextChangedListener(textWatcher);
+		mInputText = (EditText) findViewById(R.id.et_input_text); 
 		mInputText.setOnClickListener(this);
 		mInputText.setOnTouchListener(this);
+		
 		mSend = (Button) findViewById(R.id.btn_send);
 		mSend.setOnClickListener(this);
+		
 		mAddAttach = (ImageView) findViewById(R.id.iv_add_attach);
+		mAddAttach.setOnClickListener(this);
+		
 		mAddExpression = (ImageView) findViewById(R.id.iv_add_expression);
 		mAddExpression.setOnClickListener(this);
 		mAddExpression.setOnTouchListener(this);
 		mExpressionPanel = (ExpressionPanel) findViewById(R.id.expression_panel);
-		mExpressionPanel.startWork(getSupportFragmentManager());
-		mExpressionPanel.setOnExpressionClickListener(expressionListener);
-
+		mExpressionPanel.startWork(getSupportFragmentManager()); 
+		mExpressionPanel.setOnExpressionClickListener(this);
 		getActionBarRightButton().setImageDrawable(
 				getResources().getDrawable(R.drawable.icon_chat_title_bar));
 		getActionBarRightButton().setOnClickListener(this);
 		getActionBarRightButton().setVisibility(View.VISIBLE);
 		showBackButton();
-
-		messageReceiver = new MessageReceiver();
-		IntentFilter filter = new IntentFilter(
-				PushMessageReceiver.ACTION_MESSAGE_RECEIVER);
-		registerReceiver(messageReceiver, filter);
-
-		mFirstUser = XiaoYuanApp.getLoginUser(this);
-		mSecondUser = ChatHelper.chatUser;
-		ChatHelper.chatUser = null;
-		setActionBarTitle(mSecondUser.userBean.getName());
+ 
 
 		// test
 		// mSecondUser.setChatUserId(SECOND_USER_ID);
 		// mSecondUser.setChatChannelId(SECOND_USER_CHANNEL_ID);
-		mAdapter = new ChatMsgAdapter(this, mSecondUser);
-		mChatList.setAdapter(mAdapter);
-		readChatCache();
+		mAdapter = new ChatMsgAdapter(this);
 
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		myId = XiaoYuanApp.getLoginUser(this).userBean.getUid();
+		myName = XiaoYuanApp.getLoginUser(this).userBean.getUsername();
+		myPortraitUrl = XiaoYuanApp.getLoginUser(this).userBean.getS_portrait();
+		Log.d(TAG, "url="+myPortraitUrl);
+
+		imageLoader = ImageLoader.getInstance();
+		imageLoader.init(ImageLoaderConfiguration.createDefault(this));
+		options = new DisplayImageOptions.Builder().cacheInMemory(true)
+				.cacheOnDisk(true).build();
+		otherId = getIntent().getStringExtra("fromUserId");
+	    otherName = getIntent().getStringExtra("fromName");
+	    otherPortraitUrl = getIntent().getStringExtra("fromPortrait");
+	    
+	    message = getIntent().getStringExtra("message");
+	    Log.d(TAG, "mU="+myPortraitUrl+",oU="+otherPortraitUrl);
+		imageLoader.loadImage(myPortraitUrl, mBitMapListener);
+		imageLoader.loadImage(otherPortraitUrl, mBitMapListener);
 	}
-
-	private OnExpressionClickListener expressionListener = new OnExpressionClickListener() {
-
+	ImageLoadingListener mBitMapListener = new ImageLoadingListener() {
+		
 		@Override
-		public void onExpressionClick(int resId, String str) {
-			Bitmap bm = BitmapFactory.decodeResource(getResources(), resId);
-			ImageSpan imageSpan = new ImageSpan(ChatPanelActivity.this, bm);
-			SpannableString spannableString = new SpannableString(str);
-			spannableString.setSpan(imageSpan, str.indexOf("["),
-					str.indexOf("]") + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			mInputText.append(spannableString);
+		public void onLoadingStarted(String imageUri, View view) {
+		}
+		
+		@Override
+		public void onLoadingFailed(String imageUri, View view,
+				FailReason failReason) {
+		}
+		
+		@Override
+		public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+			if(imageUri.equals(myPortraitUrl)){
+
+				myPortraitMap = loadedImage;
+			}else if(imageUri.equals(otherPortraitUrl)){
+
+				otherPortraitMap = loadedImage;
+			} 
+			Log.d(TAG, "imageUri="+imageUri);
+			//Log.d(TAG, )
+			if(myPortraitMap != null && otherPortraitMap != null){
+				mAdapter.setPortrait(myPortraitMap, otherPortraitMap);
+				mChatList.setAdapter(mAdapter); 
+				readHistory();
+				registerReceiver();
+				if(message != null){
+					addChatItem();
+					
+				}
+			}
+		}
+		
+		@Override
+		public void onLoadingCancelled(String imageUri, View view) {
 		}
 	};
-
+	private void addChatItem(){
+		String data = getIntent().getStringExtra("data"); 
+		mAdapter.addChatItem(ChatItem.json2ChatItem(data));
+        scrollListViewToBottom();
+	}
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -155,6 +217,10 @@ public class ChatPanelActivity extends CommonActivity implements
 			if (mExpressionPanel.getVisibility() == View.VISIBLE) {
 				mExpressionPanel.setVisibility(View.GONE);
 			}
+			mAddAttach.setVisibility(View.GONE);
+			mSend.setVisibility(View.VISIBLE);
+			break;
+		case R.id.iv_add_attach:
 			break;
 		case R.id.btn_send:
 			String text = mInputText.getText().toString().trim();
@@ -183,6 +249,7 @@ public class ChatPanelActivity extends CommonActivity implements
 				// updateChatList(chatMessage);
 				// mInputText.setText("");
 				// ChatHelper.writeChatMessage2DB(this, chatMessage, 1);
+				sendMessage();
 			}
 			break;
 		case R.id.iv_add_expression:
@@ -204,175 +271,103 @@ public class ChatPanelActivity extends CommonActivity implements
 			break;
 		}
 	}
+	private void readHistory() { 
+		mAdapter.setChatItem(DataBaseHelper.readChat(otherId));
+        scrollListViewToBottom();
+    }
 
-	private class MessageReceiver extends BroadcastReceiver {
+    private void registerReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_RECEIVE_CHAT);
+        registerReceiver(mChatReceiver, filter);
+    }
+
+    private void sendMessage() {
+        myToSendMessage = mInputText.getText().toString();
+        mInputText.setText("");
+        sendHttpRequest(Constant.RequestId.ID_CHAT); 
+        ChatItem item = new ChatItem();
+        item.setFromUserId(XiaoYuanApp.getLoginUser(this).userBean.getUid());
+        item.setFromUserName(XiaoYuanApp.getLoginUser(this).userBean.getUsername());
+        item.setToUserId(otherId);
+        item.setToUserName(otherName); 
+        item.setIsMeChat(true);
+        item.setMessage(myToSendMessage);
+        item.setTime(System.currentTimeMillis());
+        
+        item.setmPortrait(myPortraitMap);
+        mAdapter.addChatItem(item);
+        DataBaseHelper.saveChat(item);
+        scrollListViewToBottom();
+    }
+    
+    public void sendHttpRequest(final int requestId) {
+       
+    }
+    private void scrollListViewToBottom() { 
+    	mChatList.post(new Runnable() {
+            @Override
+            public void run() {
+            	mChatList.setSelection(mAdapter.getCount() - 1);
+            }
+        });
+    }
+    
+    
+    public HttpRequestParam makeParam(int requestId) {
+        HttpRequestParam hrp = null;
+        switch (requestId) {
+            case Constant.RequestId.ID_CHAT:
+                hrp = new HttpRequestParam(Constant.RequestUrl.URL_CHAT, BaseModel.class);
+                hrp.addParam("fromUserId", XiaoYuanApp.getLoginUser(this).userBean.getUid());
+                hrp.addParam("toUserId", otherId);
+                hrp.addParam("fromName", XiaoYuanApp.getLoginUser(this).userBean.getUsername());
+                hrp.addParam("toName", otherName);
+                hrp.addParam("fromPortrait", otherPortraitUrl);
+                hrp.addParam("token", XGPushConfig.getToken(this));
+                hrp.addParam("message", myToSendMessage);
+                
+                break;
+        }
+        return hrp;
+    }
+ 
+    public void dataReceived(int requestId, BaseModel response) {
+        switch (requestId) {
+            case Constant.RequestId.ID_CHAT:
+                if (response != null && response.getResultCode() == Constant.ResultCode.RESULT_OK) {
+                    Log.d(TAG,"发送成功");
+                } else {
+                	Log.d(TAG,"发送失败");
+                    Toast.makeText(this, "发送失败", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    public BroadcastReceiver mChatReceiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String message = intent.getStringExtra("message");
-			if (!TextUtils.isEmpty(message)) {
-				Log.d(TAG, "receive >> " + message);
-				ChatMessage chatMessage = ChatMessage.getChatMessage(message);
-				updateChatList(chatMessage);
-			}
+			addChatItem(); 
 		}
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		updateRecentChat();
-		clearUnReaded(mSecondUser.userBean.getUid());
-	}
-
-	@Override
-	protected void onDestroy() {
-		unregisterReceiver(messageReceiver);
-		super.onDestroy();
-	}
-
-	TextWatcher textWatcher = new TextWatcher() {
-
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {
-
-		}
-
-		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count,
-				int after) {
-
-		}
-
-		@Override
-		public void afterTextChanged(Editable s) {
-			String text = mInputText.getText().toString().trim();
-			if (!TextUtils.isEmpty(text)) {
-				mAddAttach.setVisibility(View.GONE);
-				mSend.setVisibility(View.VISIBLE);
-			} else {
-				mAddAttach.setVisibility(View.VISIBLE);
-				mSend.setVisibility(View.GONE);
-			}
-		}
-	};
-
-	/**
-	 * 更新聊天列表
-	 * 
-	 * @param chatMessage
+    	
+    };
+	/* 
+	 * @see android.view.View.OnTouchListener#onTouch(android.view.View, android.view.MotionEvent)
 	 */
-	private void updateChatList(ChatMessage chatMessage) {
-		mAdapter.addChatMsg(chatMessage);
-		mChatList.setSelection(mAdapter.getCount() - 1);
-	}
-
-	private void updateChatList(int location, ChatMessage chatMessage) {
-		mAdapter.addChatMsg(location, chatMessage);
-		mChatList.setSelection(mAdapter.getCount() - 1);
-	}
-
-	private void updateChatList(List<ChatMessage> chatMsgs) {
-		mAdapter.addChatMsg(chatMsgs);
-		mChatList.setSelection(mAdapter.getCount() - 1);
-	}
-
-	/**
-	 * 更新最近聊天列表
-	 */
-	private void updateRecentChat() {
-		ChatMsgAdapter adapter = (ChatMsgAdapter) mChatList.getAdapter();
-		if (adapter.getCount() <= 0)
-			return;
-		ChatMessage chatMsg = (ChatMessage) adapter
-				.getItem(adapter.getCount() - 1);
-
-		SQLiteHelper helper = new SQLiteHelper(this);
-		SQLiteDatabase db = helper.getWritableDatabase();
-		Cursor cursor = db.query(SQLiteHelper.TABLE_RECENT_CHAT, null,
-				"userId = ?", new String[] { chatMsg.getToUser() }, null, null,
-				null);
-
-		ContentValues values = new ContentValues();
-		values.put("times", chatMsg.getTime());
-		values.put("recentMessage", chatMsg.getMessage());
-		values.put("unReadedCount", 0);
-		if (cursor.getCount() != 0) {
-			db.update(SQLiteHelper.TABLE_RECENT_CHAT, values, "userId = ?",
-					new String[] { chatMsg.getToUser() });
-		} else {
-			values.put("userId", chatMsg.getToUser());
-			values.put("chatUserId", chatMsg.getToWho());
-			values.put("chatUserName", chatMsg.getToUserName());
-			// values.put("chatChannelId", chatMsg.getChannelId());
-			db.insert(SQLiteHelper.TABLE_RECENT_CHAT, null, values);
-		}
-		cursor.close();
-	}
-
-	/**
-	 * 读取聊天记录
-	 */
-	private void readChatCache() {
-		if (mAdapter != null) {
-			mAdapter.clear();
-		}
-		SQLiteHelper helper = new SQLiteHelper(this);
-		SQLiteDatabase db = helper.getReadableDatabase();
-		Cursor cursor = db.query(SQLiteHelper.TABLE_CHAT_MESSAGE, null,
-				"fromUser = ? or toUser = ? ", new String[] {
-						mSecondUser.userBean.getUid(), mSecondUser.userBean.getUid() },
-				null, null, "times DESC", "20");
-		List<ChatMessage> chatMsgs = new LinkedList<ChatMessage>();
-		while (cursor.moveToNext()) {
-			Long timestamp = cursor.getLong(cursor.getColumnIndex("times"));
-			String fromUser = cursor.getString(cursor
-					.getColumnIndex("fromUser"));
-			String toUser = cursor.getString(cursor.getColumnIndex("toUser"));
-			String message = cursor
-					.getString(cursor.getColumnIndex("messages"));
-			ChatMessage chatMsg = new ChatMessage();
-			chatMsg.setTime(timestamp);
-			chatMsg.setFromUser(fromUser);
-			chatMsg.setToUser(toUser);
-			chatMsg.setMessage(message);
-			chatMsgs.add(0, chatMsg);
-		}
-		cursor.close();
-		updateChatList(chatMsgs);
-	}
-
-	private void clearUnReaded(final String userId) {
-		if (TextUtils.isEmpty(userId)) {
-			return;
-		}
-		new Thread() {
-			public void run() {
-				SQLiteHelper helper = new SQLiteHelper(ChatPanelActivity.this);
-				SQLiteDatabase db = helper.getReadableDatabase();
-				ContentValues values = new ContentValues();
-				values.put("unReadedCount", 0);
-				db.update(SQLiteHelper.TABLE_RECENT_CHAT, values, "userId = ?",
-						new String[] { userId });
-			};
-		}.start();
-	}
-
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		switch (v.getId()) {
-		case R.id.et_input_text:
-			imm.showSoftInput(mInputText, 0);
-			mExpressionPanel.setVisibility(View.GONE);
-			break;
-		case R.id.lv_chat_msg:
-			imm.hideSoftInputFromWindow(mInputText.getWindowToken(), 0);
-			mExpressionPanel.setVisibility(View.GONE);
-			break;
-		default:
-			break;
-		}
+		
 		return false;
 	}
+
+	/* 
+	 * @see com.myxiaoapp.view.ExpressionPanel.OnExpressionClickListener#onExpressionClick(int, java.lang.String)
+	 */
+	@Override
+	public void onExpressionClick(int resId, String str) {
+	}
+	
+ 
 }

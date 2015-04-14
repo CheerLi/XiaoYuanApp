@@ -1,5 +1,6 @@
 package com.myxiaoapp.android;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import com.myxiaoapp.utils.LocationHelper;
 import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
 import com.myxiaoapp.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.tencent.android.tpush.XGPushManager;
 
 /**
  * 启动Activity,主要完成以下事情：
@@ -36,12 +38,7 @@ public class StartActivity extends BaseActivity {
 		// test
 		// startActivity(new Intent(this, PushDemoActivity.class));
 		// finish();
-
-		// 绑定百度云推送账号
-		// PushManager.startWork(this, PushConstants.LOGIN_TYPE_API_KEY,
-		// RestApi.API_KEY);
-		
-		
+ 
 		startActivity(new Intent(this, LoginActivity.class));
 		finish();
 	}

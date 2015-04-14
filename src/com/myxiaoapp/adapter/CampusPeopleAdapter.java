@@ -15,6 +15,9 @@ import android.widget.TextView;
 import com.myxiaoapp.android.R;
 import com.myxiaoapp.model.NearPersonBean;
 import com.myxiaoapp.model.User;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 public class CampusPeopleAdapter extends BaseAdapter {
 	private final String TAG = "CampusPeopleAdapter";
@@ -30,12 +33,18 @@ public class CampusPeopleAdapter extends BaseAdapter {
 	// { "轻风抚面", "我要飞得更高", "1000m", R.drawable.male },
 	// { "轻风抚面", "我要飞得更高", "1000m", R.drawable.female } };
 
+	private ImageLoader imageLoader;
+	private DisplayImageOptions options;
 	private Context mContext;
 
 	private List<NearPersonBean> users;
 
 	public CampusPeopleAdapter(Context context) {
 		mContext = context;
+		imageLoader = ImageLoader.getInstance();
+		imageLoader.init(ImageLoaderConfiguration.createDefault(mContext));
+		options = new DisplayImageOptions.Builder().cacheInMemory(true)
+				.cacheOnDisk(true).build();
 	}
 
 	public CampusPeopleAdapter(Context context, List<NearPersonBean> users) {
@@ -100,7 +109,7 @@ public class CampusPeopleAdapter extends BaseAdapter {
 				right, null);
 		viewHolder.personalSign.setText(user.getMoto());
 		viewHolder.distance.setText(user.getDistance());
-
+		imageLoader.displayImage(user.getS_portrait(), viewHolder.portrait,options);
 		return convertView;
 	}
 

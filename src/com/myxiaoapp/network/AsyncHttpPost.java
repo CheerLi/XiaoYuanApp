@@ -75,10 +75,6 @@ public class AsyncHttpPost {
 			this.url = url + "/yaf/index.php/Relation/cancelfollow";
 			this.params = HttpRequestParams.cancelFocusParams(arg1, arg2);
 			break;
-		case "delcomment":
-			this.url = url + "/yaf/index.php/Comments/delcomment";
-			this.params = HttpRequestParams.delComment(arg1, arg2);
-			break;
 		case "delmsg":
 			this.url = url + "/yaf/index.php/Schoolmsg/delmsg";
 			this.params = HttpRequestParams.delMsg(arg1, arg2);
@@ -136,6 +132,10 @@ public class AsyncHttpPost {
 			String arg1, String arg2, String arg3) {
 		this(mOnResponseListener, iName);
 		switch (iName) {
+		case "delcomment":
+			this.url = url + "/yaf/index.php/Comments/delcomment";
+			this.params = HttpRequestParams.delComment(arg1, arg2, arg3);
+			break;
 		case "nearbyusers":
 			this.url = url + "/yaf/index.php/Place/nearbyusers";
 			this.params = HttpRequestParams.nearbyUserParams(arg1, arg2, arg3);
@@ -248,6 +248,7 @@ public class AsyncHttpPost {
 			break;
 			default:break;
 		}
+		Log.d(TAG,params.toString());
 	}
 
 	/**

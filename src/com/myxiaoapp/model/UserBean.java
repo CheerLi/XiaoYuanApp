@@ -26,7 +26,34 @@ public class UserBean extends BaseModel implements Serializable{
 	private String lng;
 	private String validate;
 	private String register_time;
-	private String  is_close;
+	private String is_close;
+	private String fol_counts;
+	private String fan_counts;
+	
+	/**
+	 * @return the fol_counts
+	 */
+	public String getFol_counts() {
+		return fol_counts;
+	}
+	/**
+	 * @param fol_counts the fol_counts to set
+	 */
+	public void setFol_counts(String fol_counts) {
+		this.fol_counts = fol_counts;
+	}
+	/**
+	 * @return the fan_counts
+	 */
+	public String getFan_counts() {
+		return fan_counts;
+	}
+	/**
+	 * @param fan_counts the fan_counts to set
+	 */
+	public void setFan_counts(String fan_counts) {
+		this.fan_counts = fan_counts;
+	}
 	/**
 	 * @return the uid
 	 */
@@ -234,9 +261,24 @@ public class UserBean extends BaseModel implements Serializable{
 				+ ", s_portrait=" + s_portrait + ", sex=" + sex + ", moto="
 				+ moto + ", lat=" + lat + ", lng=" + lng + ", validate="
 				+ validate + ", register_time=" + register_time + ", is_close="
-				+ is_close + "]";
+				+ is_close + ", fol_counts=" + fol_counts + ", fan_counts="
+				+ fan_counts + ", errno=" + errno + ", message=" + message
+				+ ", getFol_counts()=" + getFol_counts() + ", getFan_counts()="
+				+ getFan_counts() + ", getUid()=" + getUid() + ", getSid()="
+				+ getSid() + ", getName()=" + getName() + ", getUsername()="
+				+ getUsername() + ", getCellphone()=" + getCellphone()
+				+ ", getCollege()=" + getCollege() + ", getPortrait()="
+				+ getPortrait() + ", getS_portrait()=" + getS_portrait()
+				+ ", getSex()=" + getSex() + ", getMoto()=" + getMoto()
+				+ ", getLat()=" + getLat() + ", getLng()=" + getLng()
+				+ ", getValidate()=" + getValidate() + ", getRegister_time()="
+				+ getRegister_time() + ", getIs_close()=" + getIs_close()
+				+ ", getErrno()=" + getErrno() + ", getMessage()="
+				+ getMessage() + ", toString()=" + super.toString()
+				+ ", getResultCode()=" + getResultCode() + ", getClass()="
+				+ getClass() + ", hashCode()=" + hashCode() + "]";
 	}
-	
+	 
 	
 	
 	

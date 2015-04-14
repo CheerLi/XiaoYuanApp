@@ -21,19 +21,21 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+  
 
-import com.baidu.android.pushservice.PushConstants;
-import com.baidu.android.pushservice.PushManager;
+
+
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
-import com.baidu.location.LocationClientOption.LocationMode;
-import com.myxiaoapp.chathelper.RestApi;
+import com.baidu.location.LocationClientOption.LocationMode; 
 import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.utils.LocationHelper;
 import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
+import com.tencent.android.tpush.XGIOperateCallback;
+import com.tencent.android.tpush.XGPushManager;
 
 public class MainUIActivity extends CommonActivity implements
 		OnPageChangeListener, OnClickListener, OnMenuItemClickListener,OnResponseListener, BDLocationListener {
@@ -61,6 +63,20 @@ public class MainUIActivity extends CommonActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_ui);
 		mContext = this;
+
+		String uid = XiaoYuanApp.getLoginUser(this).userBean.getUid();
+		Context context = getApplicationContext();
+		XGPushManager.registerPush(context, uid, new XGIOperateCallback() {
+			
+			@Override
+			public void onSuccess(Object arg0, int arg1) {
+				Log.d(TAG, arg0.toString());
+			}
+			
+			@Override
+			public void onFail(Object arg0, int arg1, String arg2) {
+			}
+		});
 		init();
 		startBackstate();
 		mApp.destoryOtherLaunchActivitys();
@@ -69,11 +85,7 @@ public class MainUIActivity extends CommonActivity implements
 	
 	@Override
 	protected void onResume() {
-		super.onResume();
-		if (!PushManager.isPushEnabled(this)) {
-			PushManager.startWork(this, PushConstants.LOGIN_TYPE_API_KEY,
-					RestApi.API_KEY);
-		}
+		super.onResume(); 
 	}
 
 	@Override
@@ -83,8 +95,7 @@ public class MainUIActivity extends CommonActivity implements
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
-		PushManager.stopWork(this);
+		super.onDestroy(); 
 	}
 
 	private void init() {
@@ -125,7 +136,7 @@ public class MainUIActivity extends CommonActivity implements
 		loc.registerLocationListener(this);
 		LocationClientOption locOpt = new LocationClientOption();
 	//	locOpt.setLocationMode(LocationMode.Hight_Accuracy);
-		locOpt.setScanSpan(1000);
+		locOpt.setScanSpan(10000);
 	//	locOpt.setCoorType("gcj02");
 	//	locOpt.setIsNeedAddress(false);
 		loc.setLocOption(locOpt);

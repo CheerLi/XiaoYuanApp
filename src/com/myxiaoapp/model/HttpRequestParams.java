@@ -462,16 +462,16 @@ public class HttpRequestParams {
 	}
 	
 	public static RequestParams updateinfo(String user_id, String insert_count, List<String> picList, String del_pictures,
-			String nike_name, String moto, String affective){
+			String nick_name, String moto, String affective){
 		RequestParams params = getBaseParams();
 		params.put("user_id", user_id);
 		params.put("insert_count", insert_count);
 		params.put("picture", picList);
 		params.put("del_pictures", del_pictures);
-		Log.d(TAG, "nickname="+nike_name);
+		Log.d(TAG, "nickname="+nick_name);
 		try {
-			if(nike_name != null && !nike_name.equals("")){
-				params.put("nike_name", URLEncoder.encode(nike_name, Constant.charSet));
+			if(nick_name != null && !nick_name.equals("")){
+				params.put("nick_name", URLEncoder.encode(nick_name, Constant.charSet));
 			}			
 			if(moto != null && !moto.equals("")){
 				params.put("moto", URLEncoder.encode(moto, Constant.charSet));
@@ -498,10 +498,10 @@ public class HttpRequestParams {
 	 *            信息id
 	 * @return
 	 */
-	public static RequestParams delMsg(String user_id, String msg_id) {
+	public static RequestParams delMsg(String msg_id, String user_id) {
 		RequestParams params = getBaseParams();
-		params.put("user_id", user_id);
 		params.put("msg_id", msg_id);
+		params.put("user_id", user_id);
 		String sign = getSignByMd5(params);
 		params.put("sign", sign);
 		return params;
@@ -543,8 +543,9 @@ public class HttpRequestParams {
 	 *            评论人的id号
 	 * @return
 	 */
-	public static RequestParams delComment(String comment_id, String user_id) {
+	public static RequestParams delComment(String msg_id, String comment_id, String user_id) {
 		RequestParams params = getBaseParams();
+		params.put("msg_id", msg_id);
 		params.put("comment_id", comment_id);
 		params.put("user_id", user_id);
 		String sign = getSignByMd5(params);

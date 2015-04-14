@@ -13,8 +13,7 @@
         <com.myxiaoapp.view.CircleImageView
             android:id="@+id/iv_his_portrait"
             android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/test" />
+            android:layout_height="50dp"  />
 
         <TextView
             android:id="@+id/tv_his_chat_msg"
@@ -35,7 +34,8 @@
             android:layout_marginTop="5dp"
             android:layout_toRightOf="@id/tv_his_chat_msg"
             android:drawableLeft="@drawable/icon_chat_time"
-            android:text="12:30" />
+            android:text="12:30"
+            android:visibility="gone" />
         
         <ImageView
             android:id="@+id/iv_his_image"
@@ -67,8 +67,7 @@
             android:id="@+id/iv_my_portrait"
             android:layout_width="50dp"
             android:layout_alignParentRight="true"
-            android:layout_height="50dp"
-            android:src="@drawable/test" />
+            android:layout_height="50dp"  />
 
         <TextView
             android:id="@+id/tv_my_chat_msg"
@@ -77,6 +76,7 @@
             android:layout_toLeftOf="@id/iv_my_portrait"
             android:background="@drawable/bg_my_chat"
             android:clickable="true"
+            android:layout_centerInParent="true"
             android:layout_marginLeft="10dp"
             android:focusable="true"
             android:padding="10dp"
@@ -89,7 +89,8 @@
             android:layout_marginTop="5dp"
             android:drawableLeft="@drawable/icon_chat_time"
             android:layout_toLeftOf="@id/tv_my_chat_msg"
-            android:text="12:30" />
+            android:text="12:30"
+            android:visibility="gone" />
        
     </RelativeLayout>
 

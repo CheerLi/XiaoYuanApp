@@ -1,5 +1,7 @@
 package com.myxiaoapp.android;
 
+import java.util.List;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu.OnMenuItemClickListener;
@@ -9,16 +11,18 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.myxiaoapp.adapter.PhotoAdapter;
-import com.myxiaoapp.utils.Constant;
-import com.myxiaoapp.chathelper.ChatHelper;
+import com.myxiaoapp.utils.Constant; 
 import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.FocusFansBean;
+import com.myxiaoapp.model.MomentBean;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.model.UserBean;
 import com.myxiaoapp.model.UserInfoBean;
@@ -32,7 +36,7 @@ import com.myxiaoapp.view.CircleImageView;
  * @date 2014-10-20
  */
 public class HomePageActivity extends CommonActivity implements
-		OnClickListener, OnMenuItemClickListener, OnResponseListener {
+		OnClickListener, OnMenuItemClickListener, OnResponseListener, OnItemClickListener {
 
 	private final String TAG = "HomePageActivity";
 //	private User userInfo;
@@ -43,9 +47,14 @@ public class HomePageActivity extends CommonActivity implements
 	private TextView mSchool; // 学校
 	private TextView mPersonalSign; // 个性签名
 	private LinearLayout mFocus; // 他的关注
+	private TextView fol_counts;
 	private LinearLayout mFans; // 他的粉丝
+	private TextView fan_counts;
 	// private TextView mAlbum;//相册标签提示
 	private GridView mPhotoAlbum; // 相册
+	
+	private LinearLayout personSign;
+	private TextView mTextMood;
 	private GridView mPhotoMood;// 心情附带的照片
 	private PhotoAdapter photoAdapter;
 	private Button mGoFocus; // 关注
@@ -64,9 +73,11 @@ public class HomePageActivity extends CommonActivity implements
 		setContentView(R.layout.activity_home_page);
 		setActionBarTitle(R.string.title_activity_details);
 		bean = (UserInfoBean) getIntent().getSerializableExtra("bean");
-		initView();
 		user = bean.getUser();
+		initView();
 		CampusFragment.selectedUser = null;
+		fan_counts.setText(user.getFan_counts());
+		fol_counts.setText(user.getFol_counts());
 		mName.setText(user.getName());
 	/*	if(userBean.getSex().equals("2"))
 			mName.setBackgroundResource(R.drawable.female);
@@ -74,9 +85,11 @@ public class HomePageActivity extends CommonActivity implements
 			mName.setBackgroundResource(R.drawable.male);
 	*/	mSchool.setText(user.getCollege());
 		mPersonalSign.setText(user.getMoto());
-		photoAdapter = new PhotoAdapter(this,Constant.FLAG_Discovery);
-		photoAdapter.setLastSPics(bean.getLast_pic_list());
-	
+		List<MomentBean> lastMoments= bean.getLast_moments();
+		if( lastMoments.size() > 0){
+			photoAdapter.setLastPics(lastMoments.get(0).getM_spictures(), lastMoments.get(0).getM_pictures());
+			
+		}
 	}
 
 	private void initView() {
@@ -86,20 +99,30 @@ public class HomePageActivity extends CommonActivity implements
 		mPersonalSign = (TextView) findViewById(R.id.person_sign);
 		mFocus = (LinearLayout) findViewById(R.id.tv_focus_number);
 		mFocus.setOnClickListener(this);
+		fol_counts = (TextView)findViewById(R.id.foc_counts);
 		mFans = (LinearLayout) findViewById(R.id.tv_fans_number);
 		mFans.setOnClickListener(this);
-
+		fan_counts = (TextView)findViewById(R.id.fan_counts);
 		// mAlbum = (TextView)findViewById(R.id.myAlbum);
 		mPhotoAlbum = (GridView) findViewById(R.id.gv_photo_album);
 		mPhotoAlbum.setAdapter(new PhotoAdapter(this, Constant.FLAG_ME,
 				Constant.FLAG_CAMPUS));
-
+		personSign = (LinearLayout)findViewById(R.id.go_person_campus);
+	//	personSign.setOnClickListener(this);
+		photoAdapter = new PhotoAdapter(this,Constant.FLAG_ME);
+		mTextMood = (TextView) findViewById(R.id.campus_mood);
+		mTextMood.setOnClickListener(this);
 		mPhotoMood = (GridView) findViewById(R.id.gv_photo_mood);
-		mPhotoMood.setAdapter(new PhotoAdapter(this, Constant.FLAG_CAMPUS));
+		mPhotoMood.setAdapter(photoAdapter);
+		mPhotoMood.setOnItemClickListener(this);
 		mGoFocus = (Button) findViewById(R.id.go_focus);
 		mGoFocus.setOnClickListener(this);
 		mGoChat = (Button) findViewById(R.id.go_chat);
 		mGoChat.setOnClickListener(this);
+		if(user.getUid().equals(XiaoYuanApp.getLoginUser(this).userBean.getUid())){
+			mGoFocus.setVisibility(View.GONE);
+			mGoChat.setVisibility(View.GONE);
+		}
 		// mExit = (Button)findViewById(R.id.exit);
 		// mExit.setVisibility(View.GONE);
 
@@ -119,21 +142,39 @@ public class HomePageActivity extends CommonActivity implements
 
 	@Override
 	public void onClick(View v) {
+		Intent intent;
 		switch (v.getId()) {
 		case R.id.personal_sign:
 			break;
-		case R.id.tv_focus_number:
-			startActivity(new Intent(this, PersonListActivity.class));
+		case R.id.tv_focus_number: 
+			intent = new Intent(this, PersonListActivity.class);
+			intent.putExtra("user_id", XiaoYuanApp.getLoginUser(this).userBean.getUid());
+			intent.putExtra("follow_id", user.getUid());
+			intent.setFlags(1);
+			startActivity(intent);
 			break;
 		case R.id.tv_fans_number:
-			startActivity(new Intent(this, PersonListActivity.class));
+			intent = new Intent(this, PersonListActivity.class);
+			intent.putExtra("user_id", XiaoYuanApp.getLoginUser(this).userBean.getUid());
+			intent.putExtra("follow_id", user.getUid());
+			intent.setFlags(1);
+			startActivity(intent);
 			break;
 		case R.id.go_chat:
-	//		ChatHelper.chatUser = userInfo;
-			startActivity(new Intent(this, ChatPanelActivity.class));
+			intent = new Intent(this, ChatPanelActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("fromUserId", user.getUid());
+            intent.putExtra("fromName", user.getName());
+            intent.putExtra("fromPortrait", user.getS_portrait());
+			startActivity(intent);
 			break;
 		case R.id.go_focus:
 			new AsyncHttpPost("follow",this, XiaoYuanApp.getLoginUser(this).userBean.getUid(),user.getUid()).post();
+			break; 
+		case R.id.campus_mood:
+			Intent i = new Intent(this, CampusNewsActivity.class);
+			i.setFlags(Integer.valueOf( user.getUid() ));
+			startActivity( i );
 			break;
 		default:
 			break;
@@ -174,5 +215,17 @@ public class HomePageActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onReceiveFailure(String rec) {
+	}
+
+	/* 
+	 * @see android.widget.AdapterView.OnItemClickListener#onItemClick(android.widget.AdapterView, android.view.View, int, long)
+	 */
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		Log.d(TAG, "itemclick");
+		Intent i = new Intent(this, CampusNewsActivity.class);
+		i.setFlags(Integer.valueOf( user.getUid() ));
+		startActivity( i );
 	}
 }

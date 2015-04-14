@@ -105,7 +105,6 @@ public class PersonListActivity extends CommonActivity implements
 		}
 		PersonAdapter adapter = (PersonAdapter) mPersonsList.getAdapter();
 		adapter.setData(beans); 
-		Utils.dismissProgressDialog();
 	}
 
 	/*
@@ -113,6 +112,8 @@ public class PersonListActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onFailure(int statusCode) {
+
+		Utils.dismissProgressDialog();
 	}
 
 	/*
@@ -122,6 +123,8 @@ public class PersonListActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onReceiveSuccess(String rec, String id) {
+
+		Utils.dismissProgressDialog();
 		Log.d(TAG,rec);
 		Gson gson = new Gson();
 		switch(id){
@@ -135,7 +138,7 @@ public class PersonListActivity extends CommonActivity implements
 			updateUI();
 			break;
 		case "Getinfo":
-			
+			Log.d(TAG, "GetInfo");
 			UserInfoBean userInfoBean = gson.fromJson(rec, UserInfoDataBean.class).getData();
 			Intent intent = new Intent(this, HomePageActivity.class); 
 			intent.putExtra("bean", userInfoBean);
@@ -152,6 +155,8 @@ public class PersonListActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onReceiveFailure(String rec) {
+
+		Utils.dismissProgressDialog();
 		Log.d(TAG, rec);
 	}
 

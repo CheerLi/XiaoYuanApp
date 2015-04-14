@@ -20,12 +20,16 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.myxiaoapp.android.CampusNewsActivity;
+import com.myxiaoapp.android.MyHomePageFragment;
 import com.myxiaoapp.android.PreviewImageActivity;
 import com.myxiaoapp.android.PreviewImageDialog;
 import com.myxiaoapp.android.R;
 import com.myxiaoapp.model.LastPicBean;
 import com.myxiaoapp.utils.Constant;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader; 
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 /**
  * 校园圈 界面 相册GridView的Adapter
@@ -40,6 +44,7 @@ public class PhotoAdapter extends BaseAdapter implements OnClickListener {
 	private Context mContext;
 	private int flag;
 	private ImageLoader imageLoader;
+	private DisplayImageOptions options;
 /*	List<Integer> resList = new ArrayList<Integer>();
 	int[] resIds = { R.drawable.show_pic_1, R.drawable.show_pic_2,
 			R.drawable.show_pic_3, R.drawable.show_pic_4, R.drawable.show_pic_5 };
@@ -54,7 +59,9 @@ public class PhotoAdapter extends BaseAdapter implements OnClickListener {
 		this.mContext = context;
 		this.flag = flag;
 		imageLoader = ImageLoader.getInstance();
-
+		imageLoader.init(ImageLoaderConfiguration.createDefault(mContext));
+		options = new DisplayImageOptions.Builder().cacheInMemory(true)
+				.cacheOnDisk(true).build();
 	}
 	
 	
@@ -87,18 +94,10 @@ public class PhotoAdapter extends BaseAdapter implements OnClickListener {
 	}
 	
 
-	public void setLastSPics(List<LastPicBean> m_spictures){
-		spics.clear();
-		for(LastPicBean i : m_spictures){
-			spics.add( i.getS_url() );
-		}
-	}
-
-	public void setLastPics(List<LastPicBean> m_pictures){
-		spics.clear();
-		for(LastPicBean i : m_pictures){
-			spics.add( i.getS_url() );
-		}
+	public void setLastPics(List<String> m_spictures, List<String> m_pictures){
+		spics = m_spictures;
+		pics = m_pictures;
+		this.notifyDataSetChanged();
 	}
 
 
@@ -137,7 +136,7 @@ public class PhotoAdapter extends BaseAdapter implements OnClickListener {
 		viewHolder.imageView.setImageDrawable(drawable);
 */		Log.d("PhotoAdapter",spics.get(position));
 		viewHolder.imageView.setTag(pics.get(position));
-		imageLoader.displayImage(spics.get(position), viewHolder.imageView);
+		imageLoader.displayImage(spics.get(position), viewHolder.imageView,options);
 		return convertView;
 	}
 
@@ -149,14 +148,18 @@ public class PhotoAdapter extends BaseAdapter implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.photo:
-			ImageView imageView = (ImageView) v;
-		
-			new PreviewImageDialog(mContext,(String) imageView.getTag()).show();
-/*			ImageView imageView = (ImageView) v;
-			Intent intent = new Intent(mContext, PreviewImageActivity.class);
-			intent.putExtra("image_url", (String) imageView.getTag());
-			mContext.startActivity(intent);
-*/			break;
+			if(flag == Constant.FLAG_ME) { 
+			}else{
+				ImageView imageView = (ImageView) v;
+				new PreviewImageDialog(mContext,(String) imageView.getTag()).show();
+	/*			ImageView imageView = (ImageView) v;
+				Intent intent = new Intent(mContext, PreviewImageActivity.class);
+				intent.putExtra("image_url", (String) imageView.getTag());
+				mContext.startActivity(intent);
+	 */			
+			}
+			break;
+
 
 		default:
 			break;

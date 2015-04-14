@@ -125,7 +125,9 @@ public class CampusNewsActivity extends CommonActivity implements
 		showBackButton();
 		init();
 	}
-
+	public String getUid(){
+		return username;
+	}
 	private void init() { 	
 		campusCache = ACache.get(this, "CampusNews");
 		mPullToRefreshListView = (PullToRefreshListView) findViewById(R.id.campus_news_list);
@@ -139,11 +141,13 @@ public class CampusNewsActivity extends CommonActivity implements
 		user = XiaoYuanApp.getLoginUser(this);
 		Log.d("mydebug", "user id=" + user.userBean.getUid());
 		username = "xiaoyuan";
-		if(mFlag == Constant.FLAG_CAMPUS)
+		if(mFlag == Constant.FLAG_CAMPUS || mFlag == Constant.FLAG_Discovery)
 			username = "xiaoyuan";
-		else if(mFlag == Constant.FLAG_ME)
+		else if(mFlag == Constant.FLAG_ME )
 			username = user.userBean.getUid();
-		
+		else {
+			username = mFlag+"";
+		}
 	//	new AsyncHttpPost("Schoolinfo", this, ""	+ user.userBean.getUid(), username , null, null, MAXPAGE).post();
 		
 		//test
@@ -211,7 +215,8 @@ public class CampusNewsActivity extends CommonActivity implements
 		return true;
 	}
 
-	public void dialog(final String mid){
+	public void dialog(final String position){
+		final String mid = mAdapter.getItem(Integer.valueOf(position )).getM_id();
 		Log.d(TAG,"mid="+mid);
 		AlertDialog.Builder builder = new Builder(mContext);
 		builder.setMessage("确认删除吗？");
@@ -221,7 +226,8 @@ public class CampusNewsActivity extends CommonActivity implements
 
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
-				new AsyncHttpPost("delmsg", CampusNewsActivity.this, mid, "10001").post();
+				mAdapter.remove(Integer.valueOf(position ));
+				new AsyncHttpPost("delmsg", CampusNewsActivity.this, mid, XiaoYuanApp.getLoginUser(CampusNewsActivity.this).userBean.getUid()).post();
 			}
 		});
 

@@ -345,17 +345,24 @@ public class MomentBean implements Serializable{
 	}
 
 
+	/* 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "MomentBean [m_id=" + m_id + ", m_type=" + m_type + ", m_info="
-				+ m_info + ", m_time=" + m_time + ", m_collectnum="
-				+ m_collectnum + ", m_commentnum=" + m_commentnum
-				+ ", m_likesnum=" + m_likesnum + ", m_readnum=" + m_readnum
-				+ ", m_label=" + m_label + ", user_id=" + user_id + ", is_del="
-				+ comment_list.toString() + ", is_close="
-				+ likes_list.toString() + "]";
+		return "MomentBean [name=" + name + ", portrait=" + portrait
+				+ ", s_portrait=" + s_portrait + ", m_id=" + m_id + ", m_type="
+				+ m_type + ", m_info=" + m_info + ", m_pictures=" + m_pictures
+				+ ", m_spictures=" + m_spictures + ", m_time=" + m_time
+				+ ", m_collectnum=" + m_collectnum + ", m_commentnum="
+				+ m_commentnum + ", m_likesnum=" + m_likesnum + ", m_readnum="
+				+ m_readnum + ", m_label=" + m_label + ", user_id=" + user_id
+				+ ", is_del=" + is_del + ", is_close=" + is_close
+				+ ", comment_list=" + comment_list + ", likes_list="
+				+ likes_list + "]";
 	}
 
+ 
 
 	/* 
 	 * @see android.os.Parcelable#describeContents()

@@ -22,9 +22,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.myxiaoapp.adapter.ChatListAdapter;
-import com.myxiaoapp.chathelper.ChatHelper;
-import com.myxiaoapp.chathelper.PushMessageReceiver;
+import com.myxiaoapp.adapter.ChatListAdapter; 
 import com.myxiaoapp.model.RecentChatItem;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.utils.SQLiteHelper;
@@ -35,11 +33,9 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 
 	private ListView mChatList;
 	private List<RecentChatItem> mRecentChats;
+ 
 
-	private MessageReceiver messageReceiver;
-
-	private static final int WHAT_UPDATE_RECENT_CHAT = 1;
-	private Handler chatHandler;
+	private static final int WHAT_UPDATE_RECENT_CHAT = 1; 
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,26 +47,19 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 
 	@Override
 	public void onResume() {
-		super.onResume();
-		messageReceiver = new MessageReceiver();
-		IntentFilter filter = new IntentFilter(
-				PushMessageReceiver.ACTION_MESSAGE_RECEIVER);
-		getActivity().registerReceiver(messageReceiver, filter);
+		super.onResume(); 
 		updateRecentChat();
 	}
 
 	@Override
-	public void onPause() {
-		getActivity().unregisterReceiver(messageReceiver);
+	public void onPause() { 
 		super.onPause();
 	}
 
 	private void init(View view) {
 		mChatList = (ListView) view.findViewById(R.id.chat_list);
 		mChatList.setAdapter(new ChatListAdapter(getActivity()));
-		mChatList.setOnItemClickListener(this);
-
-		chatHandler = new ChatHandler(this);
+		mChatList.setOnItemClickListener(this); 
 	}
 
 	/**
@@ -94,8 +83,7 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 		User user = new User();
 		// user.setUserId(recentChatItem.getUserId());
 		// user.setChatUserId(recentChatItem.getChatUserId());
-		// user.setName(recentChatItem.getChatUserName());
-		ChatHelper.chatUser = user;
+		// user.setName(recentChatItem.getChatUserName()); 
 		startActivity(new Intent(getActivity(), ChatPanelActivity.class));
 	}
 
@@ -145,34 +133,8 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 					}
 				}
 				cursor.close();
-				chatHandler.sendEmptyMessage(WHAT_UPDATE_RECENT_CHAT);
 			}
 		}.start();
 	}
-
-	private static class ChatHandler extends Handler {
-		private WeakReference<ChatFragment> mOuter;
-
-		public ChatHandler(ChatFragment chatFragment) {
-			mOuter = new WeakReference<ChatFragment>(chatFragment);
-		}
-
-		@Override
-		public void handleMessage(Message msg) {
-			ChatFragment chatFragment = mOuter.get();
-			if (chatFragment == null)
-				return;
-
-			switch (msg.what) {
-			case WHAT_UPDATE_RECENT_CHAT:
-				ChatListAdapter adapter = (ChatListAdapter) chatFragment.mChatList
-						.getAdapter();
-				adapter.setData(chatFragment.mRecentChats);
-				break;
-
-			default:
-				break;
-			}
-		}
-	}
+ 
 }

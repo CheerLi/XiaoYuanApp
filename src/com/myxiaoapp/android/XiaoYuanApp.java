@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,8 +17,10 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.widget.Toast;
+ 
 
-import com.baidu.frontia.FrontiaApplication;
+
+import com.activeandroid.ActiveAndroid;
 import com.myxiaoapp.model.BaseModel;
 import com.myxiaoapp.model.ChatIdBean;
 import com.myxiaoapp.model.User;
@@ -30,7 +33,7 @@ import com.myxiaoapp.utils.Constant;
  * @author JiangZhenJie
  * @date 2014-9-7
  */
-public class XiaoYuanApp extends FrontiaApplication {
+public class XiaoYuanApp extends com.activeandroid.app.Application {
 
 	private static final String TAG = "mydebug";
 	/**
@@ -69,7 +72,7 @@ public class XiaoYuanApp extends FrontiaApplication {
 	public void onCreate() {
 		super.onCreate();
 		mContext = getApplicationContext();
-
+		ActiveAndroid.initialize(this);
 		initData();
 
 	}
@@ -207,6 +210,7 @@ public class XiaoYuanApp extends FrontiaApplication {
 		}
 		return loginUser;
 	}
+	 
 
 	public static boolean isLogin() {
 		return isLogin;

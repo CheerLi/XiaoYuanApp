@@ -14,7 +14,7 @@ import java.util.List;
 public class UserInfoBean implements Serializable{
 	private UserBean user;
 	private List<LastPicBean> last_pic_list;
-	private List<LastMoment> last_moments;
+	private List<MomentBean> last_moments;
 	/**
 	 * @return the user
 	 */
@@ -42,13 +42,13 @@ public class UserInfoBean implements Serializable{
 	/**
 	 * @return the last_moments
 	 */
-	public List<LastMoment> getLast_moments() {
+	public List<MomentBean> getLast_moments() {
 		return last_moments;
 	}
 	/**
 	 * @param last_moments the last_moments to set
 	 */
-	public void setLast_moments(List<LastMoment> last_moments) {
+	public void setLast_moments(List<MomentBean> last_moments) {
 		this.last_moments = last_moments;
 	}
 	/* 
@@ -57,11 +57,9 @@ public class UserInfoBean implements Serializable{
 	@Override
 	public String toString() {
 		return "UserInfoBean [user=" + user + ", last_pic_list="
-				+ last_pic_list + ", last_moments=" + last_moments
-				+ ", getUser()=" + getUser() + ", getLast_pic_list()="
-				+ getLast_pic_list() + ", getLast_moments()="
-				+ getLast_moments() + "]";
+				+ last_pic_list + ", last_moments=" + last_moments + "]";
 	}
+	 
 	
 	
 }

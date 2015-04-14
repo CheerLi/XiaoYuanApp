@@ -163,6 +163,7 @@ public class PublishImageActivity extends CommonActivity implements
 				viewHolder = (ViewHolder) convertView.getTag();
 			}
 			Log.d(TAG, "url path="+(String) getItem(position));
+			viewHolder.del.setTag(position);
 			ImageLoader.getInstance().displayImage((String) getItem(position),
 					viewHolder.imageView);
 			return convertView;
@@ -178,7 +179,13 @@ public class PublishImageActivity extends CommonActivity implements
 		 */
 		@Override
 		public void onClick(View v) {
-
+			int position = (int) v.getTag();
+			delPic(position);
+		}
+		
+		private void delPic(int position){
+			mUrls.remove(position);
+			this.notifyDataSetChanged();
 		}
 	}
 
@@ -389,6 +396,7 @@ public class PublishImageActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onReceiveSuccess(String rec, String id) {
+		Log.d(TAG, "rec"+rec);
 	}
 
 	/*

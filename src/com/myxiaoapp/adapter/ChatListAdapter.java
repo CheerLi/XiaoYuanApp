@@ -12,8 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jauker.widget.BadgeView;
-import com.myxiaoapp.android.R;
-import com.myxiaoapp.chathelper.ChatMessage;
+import com.myxiaoapp.android.R; 
 import com.myxiaoapp.model.RecentChatItem;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.utils.Utils;
