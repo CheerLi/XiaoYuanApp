@@ -5,6 +5,9 @@ import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -73,8 +76,12 @@ public class ForgetPWDVerifyActivity extends CommonActivity implements
 	public void onClick(View v) {
 		if (check()) {
 			final String phoneNumber = phonenumber_input.getText().toString();
-			new AsyncHttpPost("Checkphonenum", this, phoneNumber).post();
-			
+			//new AsyncHttpPost("Checkphonenum", this, phoneNumber).post();
+			new XYClient().post(
+					RequestId.ID_CHECK_PHONE_NUM, 
+					RequestUrl.URL_CHECK_PHONE_NUM, 
+					HttpRequestParams.checkPhoneParams(phoneNumber), 
+					this);
 		}
 	}
 
@@ -89,7 +96,7 @@ public class ForgetPWDVerifyActivity extends CommonActivity implements
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String id, String rec) {
+	public void onReceiveSuccess(String rec, final int ID) {
 		Intent mIntent = new Intent(ForgetPWDVerifyActivity.this,
 				ForgetPWDInputVerifyNumber.class);
 		mIntent.putExtra("phoneNumber", phoneNumber);

@@ -8,24 +8,68 @@ import com.myxiaoapp.utils.DataManager;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class ChatItem {
+	private static final String TAG = "ChatItem";
 	private String fromUserId;
-    private String fromUserName;
+    private String fromName;
+    private String fromPortrait;
     private String toUserId;
     private String toUserName;
     private long time;
     private String message;
-    private Bitmap mPortrait;
-    private Bitmap hPortrait;
+    private String mPortrait; 
     private boolean isMeChat;
 
-    public String getFromUserId() {
+    /**
+	 * @return the fromPortrait
+	 */
+	public String getFromPortrait() {
+		return fromPortrait;
+	}
+
+	/**
+	 * @param fromPortrait the fromPortrait to set
+	 */
+	public void setFromPortrait(String fromPortrait) {
+		this.fromPortrait = fromPortrait;
+	}
+
+	/**
+	 * @return the fromName
+	 */
+	public String getFromName() {
+		return fromName;
+	}
+
+	/**
+	 * @param fromName the fromName to set
+	 */
+	public void setFromName(String fromName) {
+		this.fromName = fromName;
+	}
+
+	/**
+	 * @return the mPortrait
+	 */
+	public String getmPortrait() {
+		return mPortrait;
+	}
+
+	/**
+	 * @param mPortrait the mPortrait to set
+	 */
+	public void setmPortrait(String mPortrait) {
+		this.mPortrait = mPortrait;
+	}
+
+	public String getFromUserId() {
         return fromUserId;
     }
 
     public String getFromUserName() {
-        return fromUserName;
+        return fromName;
     }
 
     public String getToUserId() {
@@ -49,7 +93,7 @@ public class ChatItem {
     }
 
     public void setFromUserName(String fromUserName) {
-        this.fromUserName = fromUserName;
+        this.fromName = fromUserName;
     }
 
     public void setToUserId(String toUserId) {
@@ -77,35 +121,7 @@ public class ChatItem {
     }
  
  
-
-	/**
-	 * @return the mPortrait
-	 */
-	public Bitmap getmPortrait() {
-		return mPortrait;
-	}
-
-	/**
-	 * @param mPortrait the mPortrait to set
-	 */
-	public void setmPortrait(Bitmap mPortrait) {
-		this.mPortrait = mPortrait;
-	}
-
-	/**
-	 * @return the hPortrait
-	 */
-	public Bitmap gethPortrait() {
-		return hPortrait;
-	}
-
-	/**
-	 * @param hPortrait the hPortrait to set
-	 */
-	public void sethPortrait(Bitmap hPortrait) {
-		this.hPortrait = hPortrait;
-	}
-
+ 
 	/**
 	 * @param isMeChat the isMeChat to set
 	 */
@@ -116,7 +132,7 @@ public class ChatItem {
 	public static ChatItem chat2ChatItem(Chat chat) {
         ChatItem chatItem = new ChatItem();
         chatItem.fromUserId = chat.fromUserId;
-        chatItem.fromUserName = chat.fromName;
+        chatItem.fromName = chat.fromName;
         chatItem.toUserId = chat.toUserId;
         chatItem.toUserName = chat.toName;
         chatItem.message = chat.message;
@@ -130,9 +146,10 @@ public class ChatItem {
     public static ChatItem json2ChatItem(String jsonStr) {
         ChatItem item = new ChatItem();
         try {
+        	Log.d(TAG, jsonStr);
             JSONObject json = new JSONObject(jsonStr);
             item.fromUserId = json.getString("fromUserId");
-            item.fromUserName = json.getString("fromName");
+            item.fromName = json.getString("fromName");
             item.toUserId = json.getString("toUserId");
             item.toUserName = json.getString("toUserName");
             item.message = json.getString("message");
@@ -148,7 +165,7 @@ public class ChatItem {
     public String toString() {
         return "ChatItem{" +
                 "fromUserId='" + fromUserId + '\'' +
-                ", fromUserName='" + fromUserName + '\'' +
+                ", fromUserName='" + fromName + '\'' +
                 ", toUserId='" + toUserId + '\'' +
                 ", toUserName='" + toUserName + '\'' +
                 ", time=" + time +

@@ -32,12 +32,16 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.myxiaoapp.adapter.PhotoAdapter;
 import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.MomentBean;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.model.UserBean;
 import com.myxiaoapp.model.UserInfoBean;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
 import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.JSONHelper;
 
 /**
@@ -111,11 +115,11 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 	//	mPhotoAlbum.setAdapter(new PhotoAdapter(getActivity(), Constant.FLAG_ME));
 
 		mTextMood = (TextView) view.findViewById(R.id.campus_mood);
-		mTextMood.setOnClickListener(this);
+	//	mTextMood.setOnClickListener(this);
 		mPhotoMood = (GridView) view.findViewById(R.id.gv_photo_mood);
 		photoAdapter = new PhotoAdapter(getActivity(),Constant.FLAG_ME);
 		mPhotoMood.setAdapter(photoAdapter);
-		mPhotoMood.setOnItemClickListener(this);
+	//	mPhotoMood.setOnItemClickListener(this);
 		mGoFocus = (Button) view.findViewById(R.id.go_focus);
 		mGoFocus.setVisibility(View.GONE);
 		mGoChat = (Button) view.findViewById(R.id.go_chat);
@@ -158,7 +162,7 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 			intent.setFlags(1);
 			startActivity(intent);
 			break;
-		case R.id.campus_mood:
+		case R.id.go_person_campus:
 			Intent i = new Intent(getActivity(), CampusNewsActivity.class);
 			i.setFlags(Constant.FLAG_ME);
 			startActivity( i );
@@ -175,7 +179,12 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 	private void getDetail() {
 		User user = XiaoYuanApp.getLoginUser(getActivity()); 
 		Log.d(TAG, user.userBean.getUid());
-		new AsyncHttpPost("Getinfo", this,user.userBean.getUid(), user.userBean.getUid()).post();
+		//new AsyncHttpPost("Getinfo", this,user.userBean.getUid(), user.userBean.getUid()).post();
+		new XYClient().post(
+				RequestId.ID_GET_INFO, 
+				RequestUrl.URL_GET_INFO, 
+				HttpRequestParams.getUserInfoParams(user.userBean.getUid(), user.userBean.getUid()), 
+				this);
 	}
 
 	private void updateUI() {
@@ -184,7 +193,7 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 		fol_counts.setText(userBean.getFol_counts());
 		fan_counts.setText(userBean.getFan_counts());
 		mName.setText(userBean.getName());
-		mSchool.setText(userBean.getCollege());
+		//mSchool.setText(userBean.getCollege());
 		String moto = userBean.getMoto();
 		if (TextUtils.isEmpty(moto) || moto.equals("null")) {
 			moto = "签名还在酝酿中...";
@@ -211,10 +220,10 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 	 * String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec, String id) {
+	public void onReceiveSuccess(String rec, final int ID) {
 		Log.d(TAG, "rec="+rec);
-		switch(id){
-		case "Getinfo":
+		switch(ID){
+		case RequestId.ID_GET_INFO:
 			Gson gson = new Gson();
 			userInfoBean = gson.fromJson(rec, UserInfoDataBean.class).getData();
 			Log.d(TAG, userInfoBean.toString());
@@ -222,8 +231,6 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 			userBean.setName(userBean.getName());
 			userBean.setCollege(userBean.getCollege());
 			updateUI();
-			break;
-		case "updateinfo":
 			break;
 		default:
 			break;
@@ -265,15 +272,25 @@ public class MyHomePageFragment extends Fragment implements OnClickListener, OnR
 			moto = modify;
 		} 
 		 
-			new AsyncHttpPost("updateinfo", this, 
-					XiaoYuanApp.getLoginUser(getActivity()).userBean.getUid(), 
-					null, 
-					null, 
+//			new AsyncHttpPost("updateinfo", this,XiaoYuanApp.getLoginUser(getActivity()).userBean.getUid(), 
+//					null,
+//					null,
+//					null,
+//					nickName,
+//					moto,
+//					null)
+//			.post(); 
+			new XYClient().post(
+					RequestId.ID_UPDATE_INFO, 
+					RequestUrl.URL_UPDATE_INFO,
+					HttpRequestParams.updateinfo(XiaoYuanApp.getLoginUser(getActivity()).userBean.getUid(), 
+					null,
+					null,
 					null,
 					nickName,
 					moto,
-					null)
-			.post(); 
+					null), 
+					this);
 		Log.d(TAG, "向后台修改信息");
 	}
 

@@ -25,14 +25,31 @@ import android.widget.RadioGroup;
 
 
 
+
+
+
+
+
+
+
+
+
+import com.activeandroid.ActiveAndroid;
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.LocationClientOption.LocationMode; 
+import com.google.gson.Gson;
+import com.myxiaoapp.adapter.CampusPeopleAdapter;
 import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.model.HttpRequestParams;
+import com.myxiaoapp.model.NearPersonList;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
 import com.myxiaoapp.utils.LocationHelper;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
 import com.tencent.android.tpush.XGIOperateCallback;
 import com.tencent.android.tpush.XGPushManager;
@@ -58,18 +75,25 @@ public class MainUIActivity extends CommonActivity implements
 	public static final String TAG_ME = "me";
 	private static final String TAG = "MainUIActivity";
 
+	private int getUser = 0;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_ui);
 		mContext = this;
-
-		String uid = XiaoYuanApp.getLoginUser(this).userBean.getUid();
+		init();
+		final String uid = XiaoYuanApp.getLoginUser(this).userBean.getUid();
 		Context context = getApplicationContext();
 		XGPushManager.registerPush(context, uid, new XGIOperateCallback() {
 			
 			@Override
 			public void onSuccess(Object arg0, int arg1) {
+				//new AsyncHttpPost("Settoken", MainUIActivity.this, uid, arg0.toString()).post();
+				new XYClient().post(
+						RequestId.ID_SET_TOKEN, 
+						RequestUrl.URL_SET_TOKEN, 
+						HttpRequestParams.setToken(uid, arg0.toString()),
+						MainUIActivity.this);
 				Log.d(TAG, arg0.toString());
 			}
 			
@@ -77,7 +101,6 @@ public class MainUIActivity extends CommonActivity implements
 			public void onFail(Object arg0, int arg1, String arg2) {
 			}
 		});
-		init();
 		startBackstate();
 		mApp.destoryOtherLaunchActivitys();
 
@@ -136,7 +159,7 @@ public class MainUIActivity extends CommonActivity implements
 		loc.registerLocationListener(this);
 		LocationClientOption locOpt = new LocationClientOption();
 	//	locOpt.setLocationMode(LocationMode.Hight_Accuracy);
-		locOpt.setScanSpan(10000);
+		locOpt.setScanSpan(100000);
 	//	locOpt.setCoorType("gcj02");
 	//	locOpt.setIsNeedAddress(false);
 		loc.setLocOption(locOpt);
@@ -325,10 +348,20 @@ public class MainUIActivity extends CommonActivity implements
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec, String id) {
-		switch(id){
-		case "Backstate":
+	public void onReceiveSuccess(String rec, final int ID) {
+		switch(ID){
+		case RequestId.ID_BACK_STATE:
 			Log.d(TAG, "回传成功");
+			break;
+		case RequestId.ID_SET_TOKEN:
+			Log.d(TAG, "设置Token成功");
+			break;
+		case RequestId.ID_NEARBY_USERS:
+			Gson gson = new Gson();
+			CampusPeopleAdapter adapter = ((CampusFragment) mFragments.get(0)).getAdapter();
+			NearPersonList personlist = gson.fromJson(rec, NearPersonList.class);
+			adapter.clear();
+			adapter.addData(personlist.getData());
 			break;
 			default:break;
 		}
@@ -346,8 +379,28 @@ public class MainUIActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onReceiveLocation(BDLocation arg0) {
+		XiaoYuanApp.setLoc(arg0);
 		Log.i(TAG, "lat="+arg0.getLatitude()+"lng="+arg0.getLongitude());
-		new AsyncHttpPost("Backstate", MainUIActivity.this, XiaoYuanApp.getLoginUser(MainUIActivity.this).userBean.getUid(), arg0.getLatitude() + "", arg0.getLongitude()+ "").post();
-	
+		//new AsyncHttpPost("Backstate", MainUIActivity.this, XiaoYuanApp.getLoginUser(MainUIActivity.this).userBean.getUid(), arg0.getLatitude() + "", arg0.getLongitude()+ "").post();
+		new XYClient().post(
+				RequestId.ID_BACK_STATE, 
+				RequestUrl.URL_BACK_STATE, 
+				HttpRequestParams.updateLocationParams(XiaoYuanApp.getLoginUser(MainUIActivity.this).userBean.getUid(), arg0.getLatitude() + "", arg0.getLongitude()+ ""), 
+				this);
+		if(getUser == 0){
+			getUser = 1;
+			getNearUsers(arg0);
+		}
+	}
+	private void getNearUsers(BDLocation loc){ 
+		String lat = loc.getLatitude() + "";
+		String lng = loc.getLongitude() + "";
+		Log.d(TAG, "lat="+lat+",lng="+lng);
+		//	new AsyncHttpPost("nearbyusers",this,lat,lng,"1").post();
+		new XYClient().post(
+				RequestId.ID_NEARBY_USERS, 
+				RequestUrl.URL_NEARBY_USERS, 
+				HttpRequestParams.nearbyUserParams(lat, lng, "1"), 
+				this);
 	}
 }

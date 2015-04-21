@@ -92,7 +92,7 @@ public class ChatPushReceiver extends XGPushBaseReceiver {
         String fromName = json.getString("fromName");
         String fromPortrait = json.getString("fromPortrait");
         String message = json.getString("message");
-
+        Log.d(TAG, json.toString());
         if (DataManager.getInstance() != null && fromUserId.equals(DataManager.getInstance().getmFrontChat() )) {
             Intent intent = new Intent(ChatPanelActivity.ACTION_RECEIVE_CHAT);
             intent.putExtra("data", json.toString());
@@ -104,8 +104,9 @@ public class ChatPushReceiver extends XGPushBaseReceiver {
             intent.putExtra("fromName", fromName);
             intent.putExtra("fromPortrait", fromPortrait);
             intent.putExtra("message",message);
+            Log.d(TAG, "data="+json.toString());
             intent.putExtra("data", json.toString());
-            pushNotification(context, intent, "收到聊天", fromName, message);
+            pushNotification(context, intent, "收到聊天", fromName, message); 
         }
     }
 	private void pushNotification(Context context, Intent intent, String ticker, String title, String contentText) throws JSONException {

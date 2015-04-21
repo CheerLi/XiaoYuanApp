@@ -23,8 +23,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.myxiaoapp.adapter.ChatListAdapter; 
+import com.myxiaoapp.model.ChatItem;
 import com.myxiaoapp.model.RecentChatItem;
 import com.myxiaoapp.model.User;
+import com.myxiaoapp.utils.DataBaseHelper;
 import com.myxiaoapp.utils.SQLiteHelper;
 
 public class ChatFragment extends Fragment implements OnItemClickListener {
@@ -32,7 +34,7 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 	private static final String TAG = "mydebug";
 
 	private ListView mChatList;
-	private List<RecentChatItem> mRecentChats;
+	private List<ChatItem> mRecentChats;
  
 
 	private static final int WHAT_UPDATE_RECENT_CHAT = 1; 
@@ -42,9 +44,10 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_chat, container, false);
 		init(view);
+		updateRecentChat();
 		return view;
-	}
-
+	} 
+	
 	@Override
 	public void onResume() {
 		super.onResume(); 
@@ -79,62 +82,21 @@ public class ChatFragment extends Fragment implements OnItemClickListener {
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		RecentChatItem recentChatItem = mRecentChats.get(position);
-		User user = new User();
-		// user.setUserId(recentChatItem.getUserId());
-		// user.setChatUserId(recentChatItem.getChatUserId());
-		// user.setName(recentChatItem.getChatUserName()); 
-		startActivity(new Intent(getActivity(), ChatPanelActivity.class));
+		ChatItem recentChatItem = mRecentChats.get(position);
+		Intent intent = new Intent(getActivity(), ChatPanelActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("fromUserId", recentChatItem.getFromUserId());
+        intent.putExtra("fromName", recentChatItem.getFromName());
+        intent.putExtra("fromPortrait", recentChatItem.getFromPortrait());
+		startActivity(intent);
 	}
 
 	/**
 	 * 更新最近聊天列表
 	 */
 	private void updateRecentChat() {
-		new Thread() {
-			@Override
-			public void run() {
-				SQLiteHelper helper = new SQLiteHelper(getActivity());
-				SQLiteDatabase db = helper.getReadableDatabase();
-				Cursor cursor = db.query(SQLiteHelper.TABLE_RECENT_CHAT, null,
-						null, null, null, null, "times DESC");
-				mRecentChats = new LinkedList<RecentChatItem>();
-				while (cursor.moveToNext()) {
-					Long timestamp = cursor.getLong(cursor
-							.getColumnIndex("times"));
-					String userId = cursor.getString(cursor
-							.getColumnIndex("userId"));
-					String chatUserId = cursor.getString(cursor
-							.getColumnIndex("chatUserId"));
-					String chatChannelId = cursor.getString(cursor
-							.getColumnIndex("chatChannelId"));
-					String chatUserName = cursor.getString(cursor
-							.getColumnIndex("chatUserName"));
-					String recentMessage = cursor.getString(cursor
-							.getColumnIndex("recentMessage"));
-					int unReadedCount = cursor.getInt(cursor
-							.getColumnIndex("unReadedCount"));
-					// ChatMessage chatMsg = new ChatMessage();
-					// chatMsg.setTime(timestamp);
-					// chatMsg.setToWho(chatUserId);
-					// chatMsg.setToUser(userId);
-					// chatMsg.setToUserName(chatUserName);
-					// chatMsg.setMessage(recentMessage);
-					User loginUser = XiaoYuanApp.getLoginUser(getActivity());
-					if (!TextUtils.equals(userId, loginUser.userBean.getUid())) {
-						RecentChatItem chatItem = new RecentChatItem();
-						chatItem.setTimestamp(timestamp);
-						chatItem.setChatUserId(chatUserId);
-						chatItem.setChatUserName(chatUserName);
-						chatItem.setRecentMessage(recentMessage);
-						chatItem.setUnReadedCount(unReadedCount);
-						chatItem.setUserId(userId);
-						mRecentChats.add(chatItem);
-					}
-				}
-				cursor.close();
-			}
-		}.start();
+		mRecentChats = DataBaseHelper.readRecentChatList();
+		((ChatListAdapter)mChatList.getAdapter()).setChatList(mRecentChats);
 	}
  
 }

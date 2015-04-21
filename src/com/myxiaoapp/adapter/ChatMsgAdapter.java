@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 public class ChatMsgAdapter extends BaseAdapter {
 
+	private static final String TAG = "ChatMsgAdapter";
 	private Context mContext;
     private List<ChatItem> mChatItems;
 	private ImageLoader imageLoader;
@@ -99,6 +101,7 @@ public class ChatMsgAdapter extends BaseAdapter {
             holder.hisMessageView.setText(item.getMessage());
             holder.hisPortraitView.setImageBitmap(otherPortrait);
         }
+        Log.d(TAG, item.getMessage());
         return convertView;
     }
 

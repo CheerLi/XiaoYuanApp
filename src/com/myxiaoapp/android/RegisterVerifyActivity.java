@@ -8,6 +8,9 @@ import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.model.RegisterInfo;
 import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.network.SingleAsyncClient;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -75,8 +78,12 @@ public class RegisterVerifyActivity extends CommonActivity implements
 
 		phone = phoneNumber.getText().toString();
 		if (check(phone)) {
-			new AsyncHttpPost("Checkphonenum", this,phone).post();
-			
+			//new AsyncHttpPost("Checkphonenum", this,phone).post();
+			new XYClient().post(
+					RequestId.ID_CHECK_PHONE_NUM,  
+					RequestUrl.URL_CHECK_PHONE_NUM, 
+					HttpRequestParams.checkPhoneParams(phone), 
+					this);
 		}
 	}
 
@@ -91,7 +98,7 @@ public class RegisterVerifyActivity extends CommonActivity implements
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String id, String rec) {
+	public void onReceiveSuccess(String rec, final int ID) {
 		RegisterInfo.setPhone(phone);
 		Intent intent = new Intent(RegisterVerifyActivity.this,
 				RegisterInputVerifyActivity.class);

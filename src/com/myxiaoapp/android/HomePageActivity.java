@@ -20,13 +20,17 @@ import android.widget.TextView;
 
 import com.myxiaoapp.adapter.PhotoAdapter;
 import com.myxiaoapp.utils.Constant; 
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.FocusFansBean;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.MomentBean;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.model.UserBean;
 import com.myxiaoapp.model.UserInfoBean;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
 import com.myxiaoapp.view.CircleImageView;
 
 /**
@@ -83,7 +87,7 @@ public class HomePageActivity extends CommonActivity implements
 			mName.setBackgroundResource(R.drawable.female);
 		else 
 			mName.setBackgroundResource(R.drawable.male);
-	*/	mSchool.setText(user.getCollege());
+	*///	mSchool.setText(user.getCollege());
 		mPersonalSign.setText(user.getMoto());
 		List<MomentBean> lastMoments= bean.getLast_moments();
 		if( lastMoments.size() > 0){
@@ -108,13 +112,13 @@ public class HomePageActivity extends CommonActivity implements
 		mPhotoAlbum.setAdapter(new PhotoAdapter(this, Constant.FLAG_ME,
 				Constant.FLAG_CAMPUS));
 		personSign = (LinearLayout)findViewById(R.id.go_person_campus);
-	//	personSign.setOnClickListener(this);
+		personSign.setOnClickListener(this);
 		photoAdapter = new PhotoAdapter(this,Constant.FLAG_ME);
 		mTextMood = (TextView) findViewById(R.id.campus_mood);
-		mTextMood.setOnClickListener(this);
+	//	mTextMood.setOnClickListener(this);
 		mPhotoMood = (GridView) findViewById(R.id.gv_photo_mood);
 		mPhotoMood.setAdapter(photoAdapter);
-		mPhotoMood.setOnItemClickListener(this);
+	//	mPhotoMood.setOnItemClickListener(this);
 		mGoFocus = (Button) findViewById(R.id.go_focus);
 		mGoFocus.setOnClickListener(this);
 		mGoChat = (Button) findViewById(R.id.go_chat);
@@ -157,7 +161,7 @@ public class HomePageActivity extends CommonActivity implements
 			intent = new Intent(this, PersonListActivity.class);
 			intent.putExtra("user_id", XiaoYuanApp.getLoginUser(this).userBean.getUid());
 			intent.putExtra("follow_id", user.getUid());
-			intent.setFlags(1);
+			intent.setFlags(0);
 			startActivity(intent);
 			break;
 		case R.id.go_chat:
@@ -169,9 +173,14 @@ public class HomePageActivity extends CommonActivity implements
 			startActivity(intent);
 			break;
 		case R.id.go_focus:
-			new AsyncHttpPost("follow",this, XiaoYuanApp.getLoginUser(this).userBean.getUid(),user.getUid()).post();
+			//new AsyncHttpPost("follow",this, XiaoYuanApp.getLoginUser(this).userBean.getUid(),user.getUid()).post();
+			new XYClient().post(
+					RequestId.ID_FOLLOW, 
+					RequestUrl.URL_FOLLOW,
+					HttpRequestParams.focusFriendsParams(XiaoYuanApp.getLoginUser(this).userBean.getUid(),user.getUid()), 
+					this);
 			break; 
-		case R.id.campus_mood:
+		case R.id.go_person_campus:
 			Intent i = new Intent(this, CampusNewsActivity.class);
 			i.setFlags(Integer.valueOf( user.getUid() ));
 			startActivity( i );
@@ -206,7 +215,7 @@ public class HomePageActivity extends CommonActivity implements
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String id, String rec) {
+	public void onReceiveSuccess(String rec, final int ID) {
 		mGoFocus.setText("已关注");
 	}
 

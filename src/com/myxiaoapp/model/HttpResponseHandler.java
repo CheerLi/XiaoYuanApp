@@ -34,16 +34,16 @@ public class HttpResponseHandler extends AsyncHttpResponseHandler {
 	private String charSet = "UTF-8";
 
 	private OnResponseListener listener;
-	private String id;
+	private int id;
 	private final String CONSTANTLOG = "HttpResponseHandler:";
 
 /*	public HttpResponseHandler() {
 
 	}
 */
-	public HttpResponseHandler(OnResponseListener l, String id) {
+	public HttpResponseHandler(OnResponseListener l, final int ID_REQUEST) {
 		this.listener = l;
-		this.id = id;
+		this.id = ID_REQUEST;
 	}
 /*
 	public void setOnResponseListener(OnResponseListener mListener) {

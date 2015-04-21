@@ -20,7 +20,9 @@ import android.widget.Toast;
  
 
 
+
 import com.activeandroid.ActiveAndroid;
+import com.baidu.location.BDLocation;
 import com.myxiaoapp.model.BaseModel;
 import com.myxiaoapp.model.ChatIdBean;
 import com.myxiaoapp.model.User;
@@ -68,6 +70,7 @@ public class XiaoYuanApp extends com.activeandroid.app.Application {
 
 	private static boolean isLogin = false;
 
+	private static BDLocation loc;
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -255,4 +258,20 @@ public class XiaoYuanApp extends com.activeandroid.app.Application {
 		bean.chatChannelId = chatChannelId;
 		return bean;
 	}
+
+	/**
+	 * @return the loc
+	 */
+	public static BDLocation getLoc() {
+		return loc;
+	}
+
+	/**
+	 * @param loc the loc to set
+	 */
+	public static void setLoc(BDLocation loc) {
+		XiaoYuanApp.loc = loc;
+	}
+	
+	
 }

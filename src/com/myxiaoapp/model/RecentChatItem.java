@@ -1,68 +1,29 @@
 package com.myxiaoapp.model;
 
-public class RecentChatItem {
-	Long timestamp;
-	String userId;
-	String chatUserId;
-	String chatChannelId;
-	String chatUserName;
-	String recentMessage;
-	int unReadedCount;
-
-	public Long getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Long timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
-	public String getChatUserId() {
-		return chatUserId;
-	}
-
-	public void setChatUserId(String chatUserId) {
-		this.chatUserId = chatUserId;
-	}
-
-	public String getChatChannelId() {
-		return chatChannelId;
-	}
-
-	public void setChatChannelId(String chatChannelId) {
-		this.chatChannelId = chatChannelId;
-	}
-
-	public String getChatUserName() {
-		return chatUserName;
-	}
-
-	public void setChatUserName(String chatUserName) {
-		this.chatUserName = chatUserName;
-	}
-
-	public String getRecentMessage() {
-		return recentMessage;
-	}
-
-	public void setRecentMessage(String recentMessage) {
-		this.recentMessage = recentMessage;
-	}
-
-	public int getUnReadedCount() {
-		return unReadedCount;
-	}
-
-	public void setUnReadedCount(int unReadedCount) {
-		this.unReadedCount = unReadedCount;
-	}
-
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+@Table(name = "RecentChatData")
+public class RecentChatItem extends Model{
+	@Column(name = "timestamp")
+	public long timestamp;
+	
+	@Column(name = "userId")
+	public int userId;
+	
+	@Column(name = "chatUserId")
+	public int chatUserId; 
+	
+	@Column(name = "chatUserName")
+	public String chatUserName;
+	
+	@Column(name = "chatUserPortrait")
+	public String chatUserPortrait;
+	
+	@Column(name = "recentMessage")
+	public String recentMessage;
+	
+	@Column(name = "unReadedCount")
+	public int unReadedCount;
+ 
 }

@@ -13,24 +13,30 @@ import android.widget.TextView;
 
 import com.jauker.widget.BadgeView;
 import com.myxiaoapp.android.R; 
+import com.myxiaoapp.model.ChatItem;
 import com.myxiaoapp.model.RecentChatItem;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.utils.Utils;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class ChatListAdapter extends BaseAdapter {
 
 	private Context mContext;
-	private List<RecentChatItem> mRecentChats;
-
+	private List<ChatItem> mRecentChats;
+	private ImageLoader imageLoader;
 	public ChatListAdapter(Context c) {
 		this.mContext = c;
+		imageLoader = ImageLoader.getInstance();
 	}
 
-	public ChatListAdapter(Context c, List<RecentChatItem> recentChats) {
-		this.mContext = c;
+	public ChatListAdapter(Context c, List<ChatItem> recentChats) {
+		this(c);
 		this.mRecentChats = recentChats;
 	}
-
+	public void setChatList(List<ChatItem> chatList){
+		mRecentChats = chatList;
+		notifyDataSetChanged();
+	}	
 	@Override
 	public int getCount() {
 		if (mRecentChats == null) {
@@ -75,19 +81,19 @@ public class ChatListAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		holder.userName.setText(recentChat.getChatUserName());
-		holder.messagePreview.setText(recentChat.getRecentMessage());
-		holder.time.setText(Utils.formatTime(recentChat.getTimestamp()));
+		holder.userName.setText(recentChat.chatUserName);
+		holder.messagePreview.setText(recentChat.recentMessage);
+		holder.time.setText(Utils.formatTime(recentChat.timestamp));
 
 		holder.badgeView.setVisibility(View.VISIBLE);
-		holder.badgeView.setBadgeCount(recentChat.getUnReadedCount());
+		holder.badgeView.setBadgeCount(recentChat.unReadedCount);
 		// if (recentChat.getUnReadedCount() != 0) {
 		// holder.badgeView.setVisibility(View.VISIBLE);
 		// holder.badgeView.setBadgeCount(recentChat.getUnReadedCount());
 		// } else {
 		// holder.badgeView.setVisibility(View.GONE);
 		// }
-
+		imageLoader.displayImage(recentChat.chatUserPortrait, holder.portrait);
 		return convertView;
 	}
 
@@ -99,9 +105,9 @@ public class ChatListAdapter extends BaseAdapter {
 		TextView time;
 	}
 
-	public void setData(List<RecentChatItem> recentChats) {
+	public void setData(List<ChatItem> recentChats) {
 		if (mRecentChats == null) {
-			mRecentChats = new LinkedList<RecentChatItem>();
+			mRecentChats = new LinkedList<ChatItem>();
 		}
 		mRecentChats.clear();
 		mRecentChats.addAll(recentChats);

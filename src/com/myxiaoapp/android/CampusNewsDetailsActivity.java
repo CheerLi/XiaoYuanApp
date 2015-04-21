@@ -38,11 +38,15 @@ import com.myxiaoapp.adapter.CampusNewsCommentAdapter;
 import com.myxiaoapp.adapter.PhotoAdapter;
 import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.CampusCrclCmtBean;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.MomentBean;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
 import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.InputUtils;
 import com.myxiaoapp.utils.Utils;
+import com.myxiaoapp.utils.Constant.RequestId;
 import com.myxiaoapp.view.MyGridView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -188,13 +192,23 @@ public class CampusNewsDetailsActivity extends CommonActivity implements
 			String name_by = "";
 			String comment = mEditText.getText().toString();
 			if(sendType == COMMENT){
-				new AsyncHttpPost("reply",this, bean.getM_id(),comment , XiaoYuanApp.getLoginUser(this).userBean.getUid(), null )
-				.post();
+			//	new AsyncHttpPost("reply",this, bean.getM_id(),comment , XiaoYuanApp.getLoginUser(this).userBean.getUid(), null )
+			//	.post();
+				new XYClient().post(
+						RequestId.ID_REPLY, 
+						RequestUrl.URL_REPLY, 
+						HttpRequestParams.reply(bean.getM_id(),comment , XiaoYuanApp.getLoginUser(this).userBean.getUid(), null ), 
+						this);
 			}else if(sendType == REPLY){
 				CampusCrclCmtBean cb = (CampusCrclCmtBean) mCommentAdapter.getItem(Integer.parseInt( v.getTag().toString() ));
 				name_by = cb.getName();
-				new AsyncHttpPost("reply",this, bean.getM_id(),mEditText.getText().toString(), XiaoYuanApp.getLoginUser(this).userBean.getUid(), cb.getUid() )
-				.post();
+				//new AsyncHttpPost("reply",this, bean.getM_id(),mEditText.getText().toString(), XiaoYuanApp.getLoginUser(this).userBean.getUid(), cb.getUid() )
+				//.post();
+				new XYClient().post(
+						RequestId.ID_REPLY, 
+						RequestUrl.URL_REPLY, 
+						HttpRequestParams.reply(bean.getM_id(), mEditText.getText().toString(), XiaoYuanApp.getLoginUser(this).userBean.getUid(), cb.getUid()), 
+						this);
 			}
 			mCommentAdapter.addItem(name,name_by,comment);
 			mCommentAdapter.notifyDataSetChanged();
@@ -225,7 +239,12 @@ public class CampusNewsDetailsActivity extends CommonActivity implements
 			mEditText.requestFocus();
 			break;
 		case R.id.number_of_people_like:
-			new AsyncHttpPost("addlike", this, v.getTag().toString(), XiaoYuanApp.getLoginUser(this).userBean.getUid()).post();
+			//new AsyncHttpPost("addlike", this, v.getTag().toString(), XiaoYuanApp.getLoginUser(this).userBean.getUid()).post();
+			new XYClient().post(
+					RequestId.ID_ADD_LIKE, 
+					RequestUrl.URL_ADD_LIKE,
+					HttpRequestParams.addLike(v.getTag().toString(), XiaoYuanApp.getLoginUser(this).userBean.getUid()), 
+					this);
 			TextView like = (TextView)v.findViewById(R.id.number_of_people_like);
 			like.setText( (Integer.parseInt(like.getText().toString() )+1 )+"");
 			break; 
@@ -279,15 +298,15 @@ public class CampusNewsDetailsActivity extends CommonActivity implements
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec, String id) {
-		switch(id){
-			case"delcomment":
+	public void onReceiveSuccess(String rec, final int ID) {
+		switch(ID){
+			case RequestId.ID_DEL_COMMENT:
 				Log.d(TAG, "删除评论成功");
 				break;
-			case "addlike":
+			case RequestId.ID_ADD_LIKE:
 				Log.d(TAG, "点赞成功");
 				break;
-			case "reply":
+			case RequestId.ID_REPLY:
 				Log.d(TAG, "评论成功");
 				break;
 			default:break;
@@ -339,8 +358,13 @@ public class CampusNewsDetailsActivity extends CommonActivity implements
 		builder.setItems(items, new DialogInterface.OnClickListener() {  
 		    public void onClick(DialogInterface dialog, int item) {  
 		        Toast.makeText(getApplicationContext(), items[item], Toast.LENGTH_SHORT).show();  
-		        new AsyncHttpPost("delcomment", CampusNewsDetailsActivity.this, msg_id, comt_id, uid_by)
-		        .post();
+		     //   new AsyncHttpPost("delcomment", CampusNewsDetailsActivity.this, msg_id, comt_id, uid_by)
+		     //   .post();
+		        new XYClient().post(
+		        		RequestId.ID_DEL_COMMENT, 
+		        		RequestUrl.URL_DEL_COMMENT, 
+		        		HttpRequestParams.delComment( msg_id, comt_id, uid_by), 
+		        		CampusNewsDetailsActivity.this);
 		        mCommentAdapter.deleteItem(position);
 		        mCommentAdapter.notifyDataSetChanged();
 		        bean.setComment_list(mCommentAdapter.getComments());

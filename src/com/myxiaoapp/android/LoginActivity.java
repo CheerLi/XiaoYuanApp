@@ -28,11 +28,16 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.UserBean;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.ACache;
 import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.JSONHelper;
 import com.myxiaoapp.utils.LocationHelper;
+import com.myxiaoapp.utils.Constant.RequestId;
 import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
 
 /**
@@ -66,7 +71,6 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		// 接口测试
 		try {
 			interfaceTest();
@@ -86,11 +90,11 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
 		username = (EditText) findViewById(R.id.username);
 		username.setOnTouchListener(this);
-		username.setText("admin");// 测试账号
+	//	username.setText("admin");// 测试账号
 
 		password = (EditText) findViewById(R.id.password);
 		password.setOnTouchListener(this);
-		password.setText("admin");// 测试密码
+	//	password.setText("admin");// 测试密码
 
 		register = (TextView) findViewById(R.id.register);
 		register.setOnClickListener(this);
@@ -103,6 +107,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 
 		mApp.addLaunchActivity(this);
 
+		if(login()){
+			startMainUIActivity();
+		}
 	}
 
 	private void interfaceTest() throws UnsupportedEncodingException,
@@ -192,19 +199,44 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 	}
 
 	protected void loginSubmit() {
-		if (check()) {
-			new AsyncHttpPost("login", this,
-					this.username.getText().toString(), this.password.getText()
-							.toString()).post();
+		if(check()) {
+//			new AsyncHttpPost("login", this,
+//					this.username.getText().toString(), this.password.getText()
+//							.toString()).post();
+			new XYClient().post(
+					RequestId.ID_LOGIN, 
+					RequestUrl.URL_LOGIN, 
+					HttpRequestParams.loginParams(this.username.getText().toString(), this.password.getText().toString()), 
+					this);
 		}
 	}
+	private void startMainUIActivity(){
 
-	private void loginSuccess(UserBean userBean) {
-		Log.d(TAG, userBean.toString());
-		mApp.setLoginUser(userBean);
-		mApp.saveInfo(userBean, Constant.SHARE_PRE_LOGIN_INFO);
 		startActivity(new Intent(LoginActivity.this, MainUIActivity.class));
 		finish();
+	}
+	private boolean login(){
+		ACache loginCache = ACache.get(this);
+		String login = loginCache.getAsString("login");
+		if(login != null && login.equals("1")){
+			UserBean userBean = (UserBean) loginCache.getAsObject("userBean");
+			saveUserInfo(userBean);
+			return true;
+		}else {
+			return false;
+		}
+	}
+	private void saveUserInfo(UserBean userBean){
+		mApp.setLoginUser(userBean);
+		mApp.saveInfo(userBean, Constant.SHARE_PRE_LOGIN_INFO);
+	}
+	private void loginSuccess(UserBean userBean) {
+		Log.d(TAG, userBean.toString());
+		ACache loginCache = ACache.get(this);
+		loginCache.put("login", "1");
+		loginCache.put("userBean", userBean);
+		saveUserInfo(userBean);
+		startMainUIActivity();
 	}
 
 	@Override
@@ -271,9 +303,9 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 	 * String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec,String id) {
-		switch(id){
-		case "login":
+	public void onReceiveSuccess(String rec,final int ID) {
+		switch(ID){
+		case RequestId.ID_LOGIN:
 			Gson gson = new Gson();
 			UserBean userBean = null;
 			try {
@@ -285,7 +317,7 @@ public class LoginActivity extends BaseActivity implements OnClickListener,
 			if(userBean != null)
 				loginSuccess(userBean);
 			break;
-		case "":
+		default:
 			break;
 		}
 	}

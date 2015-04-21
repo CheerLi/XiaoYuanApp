@@ -21,12 +21,18 @@ public class Chat extends Model {
 
     @Column(name = "fromName")
     public String fromName;
-
+    
+    @Column(name = "fromPortrait")
+    public String fromPortrait;
+    
     @Column(name = "toUserId")
     public String toUserId;
 
     @Column(name = "toName")
     public String toName;
+    
+    @Column(name = "toPortrait")
+    public String toPortrait;
 
     @Column(name = "message")
     public String message;

@@ -15,16 +15,18 @@ import android.widget.TextView;
 import com.myxiaoapp.android.R;
 import com.myxiaoapp.model.FocusFansBean;
 import com.myxiaoapp.model.User;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class PersonAdapter extends BaseAdapter {
 
 	private Context mContext;
 
 	private List<FocusFansBean> users;
-	
+	private ImageLoader imageLoader;
 	private final String TAG = "PersonAdapter";
 	public PersonAdapter(Context context) {
 		mContext = context;
+		imageLoader = ImageLoader.getInstance();
 	}
 
 	public PersonAdapter(Context context, List<FocusFansBean> users) {
@@ -89,6 +91,7 @@ public class PersonAdapter extends BaseAdapter {
 				right, null);
 		viewHolder.personalSign.setText(user.moto);
 		viewHolder.distance.setVisibility(View.GONE);
+		imageLoader.displayImage(user.s_portrait, viewHolder.portrait);
 
 		return convertView;
 	}

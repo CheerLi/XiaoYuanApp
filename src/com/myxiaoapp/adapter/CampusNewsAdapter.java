@@ -38,7 +38,7 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-public class CampusNewsAdapter extends BaseAdapter implements OnClickListener, OnResponseListener {
+public class CampusNewsAdapter extends BaseAdapter implements OnClickListener {
 	private final String TAG = "CampusNewsAdapter";
 	private Context mContext;
 	private String CONSTANTLOG = "CampusNewsAdapter:";
@@ -254,42 +254,14 @@ public class CampusNewsAdapter extends BaseAdapter implements OnClickListener, O
 			break;
 		case R.id.like:
 			Log.d(TAG,"点赞");
-			new AsyncHttpPost("addlike", this, v.getTag().toString(), XiaoYuanApp.getLoginUser(mContext).userBean.getUid()).post();
+			((CampusNewsActivity)mContext).addLike(v.getTag().toString());
+		//	new AsyncHttpPost("addlike", this, v.getTag().toString(), XiaoYuanApp.getLoginUser(mContext).userBean.getUid()).post();
 			TextView like = (TextView)v.findViewById(R.id.like);
 			like.setText( (Integer.parseInt(like.getText().toString() )+1 )+"");
 			break; 
 		default:
 			break;
 		}
-	}
-	/* 
-	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
-	 */
-	@Override
-	public void onFailure(int statusCode) {
-		Log.d(TAG, "statusCode="+statusCode);
-	}
-	/* 
-	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void onReceiveSuccess(String rec, String id) {
-		Log.d(TAG, "rec="+rec);
-		switch(id){
-		case "addlike":
-			
-			break;
-			default:break;
-		}
-		
-	}
-	/* 
-	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.String)
-	 */
-	@Override
-	public void onReceiveFailure(String rec) {
-		Log.d(TAG,"失败="+rec);
-	}
- 
+	} 
 
 }

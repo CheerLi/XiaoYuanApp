@@ -29,8 +29,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.InputUtils;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -314,7 +318,12 @@ public class PublishImageActivity extends CommonActivity implements
 		switch (item.getItemId()) {
 		case R.id.action_send:
 			Log.d(TAG, "发布图文");
-			new AsyncHttpPost("updatemsg",this,user.userBean.getUid(), mText.getText().toString(), mUrls.size(), mUrls).post();
+		//	new AsyncHttpPost("updatemsg",this,user.userBean.getUid(), mText.getText().toString(), mUrls.size(), mUrls).post();
+			new XYClient().post(
+					RequestId.ID_UPDATE_MSG, 
+					RequestUrl.URL_UPDATE_MSG, 
+					HttpRequestParams.uploadMsg(user.userBean.getUid(), mText.getText().toString(), mUrls.size(), mUrls), 
+					this);
 			Log.d(TAG, "pic size="+mUrls.size());
 			finish();
 			break;
@@ -395,7 +404,7 @@ public class PublishImageActivity extends CommonActivity implements
 	 * String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec, String id) {
+	public void onReceiveSuccess(String rec, final int ID) {
 		Log.d(TAG, "rec"+rec);
 	}
 

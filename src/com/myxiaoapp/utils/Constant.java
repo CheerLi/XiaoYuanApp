@@ -58,52 +58,76 @@ public class Constant {
 	public static class RequestId {
         public static final int ID_REGISTER = 100;
         public static final int ID_LOGIN = 101;
-        public static final int ID_GET_FRIEND_LIST = 102;
-        public static final int ID_PUBLISH_MOMENT = 103;
-        public static final int ID_PUBLISH_GAME = 104;
-        public static final int ID_SHOW_HALL = 105;
-        public static final int ID_SHOW_MOMENT = 106;
-        public static final int ID_SHOW_GAME = 107;
-        public static final int ID_UPDATE_HALL = 108;
-        public static final int ID_UPDATE_HALL_LOCATION = 109;
-        public static final int ID_DELETE_IMAGE = 200;
-        public static final int ID_GET_FRIEND_SINGLE = 201;
-        public static final int ID_ASSOCIATE = 202;
-        public static final int ID_INVITE = 203;
-        public static final int ID_SHOW_INVITE = 204;
-        public static final int ID_REPLY_INVITE = 205;
-        public static final int ID_LOGOUT = 206;
-        public static final int ID_CHAT = 207;
-        public static final int ID_SHOW_FRIEND = 208;
-        public static final int ID_ADD_FRIEND = 209;
+        public static final int ID_GET_SHORT_MSG = 102;
+        public static final int ID_CHECK_PHONE_NUM = 103;
+        public static final int ID_UPDATE_PASSWORD = 104;
+        
+        public static final int ID_CAMPUS_CODE = 105; 
+        public static final int ID_SCHOOL_INFO = 106;
+        public static final int ID_UPDATE_MSG = 107;
+        public static final int ID_DEL_MSG = 108;
+        public static final int ID_VERIFY = 109;
+        
+        public static final int ID_REPLY = 200;
+        
+        public static final int ID_DEL_COMMENT = 201;
+        public static final int ID_ADD_LIKE = 202;
+        public static final int ID_FOLLOW = 203;
+        public static final int ID_CANCEL_FOLLOW = 204;
+        public static final int ID_SETREMARK = 205;
+        
+        public static final int ID_SHIELDING = 206;
+        public static final int ID_FOLLOWS_LIST = 207;
+        public static final int ID_FANS_LIST = 208;
+        public static final int ID_GET_INFO = 209;
+        public static final int ID_UPDATE_INFO = 300;
+        
+        public static final int ID_BACK_STATE = 301;
+        public static final int ID_FEEDBACK = 302;
+        public static final int ID_NEARBY_USERS = 303;
+        public static final int ID_SET_TOKEN = 304;
+        public static final int ID_PUSH_MSG = 305;
+        
     }
 
     public static class RequestUrl {
-        public static final String URL_SERVER = "http://192.168.1.102:8080/PingPongServer";
-        public static final String URL_REGISTER = URL_SERVER + "/register";
-        public static final String URL_LOGIN = URL_SERVER + "/login";
-        public static final String URL_SHOW_FRIEND = URL_SERVER + "/showfriend";
-        public static final String URL_UPLOAD_IMAGE = URL_SERVER + "/uploadimage";
-        public static final String URL_PUBLISH_MOMENT = URL_SERVER + "/publishmoment";
-        public static final String URL_PUBLISH_GAME = URL_SERVER + "/publishgame";
-        public static final String URL_SHOW_HALL = URL_SERVER + "/showhall";
-        public static final String URL_SHOW_MOMENT = URL_SERVER + "/showmoment";
-        public static final String URL_SHOW_GAME = URL_SERVER + "/showgame";
-        public static final String URL_UPDATE_HALL = URL_SERVER + "/updatehall";
-        public static final String URL_UPDATE_HALL_LOCATION = URL_SERVER + "/updatehalllocation";
-        public static final String URL_DELETE_IMAGE = URL_SERVER + "/deleteimage";
-        public static final String URL_UPLOAD_FRIEND_PORTRAIT = URL_SERVER + "/uploadfriendportrait";
-        public static final String URL_ASSOCIATE = URL_SERVER + "/associate";
-        public static final String URL_INVITE = URL_SERVER + "/invite";
-        public static final String URL_SHOW_INVITE = URL_SERVER + "/showinvite";
-        public static final String URL_REPLY_INVITE = URL_SERVER + "/replyinvite";
-        public static final String URL_LOGOUT = URL_SERVER + "/logout";
-        public static final String URL_CHAT = URL_SERVER + "/chat";
-        public static final String URL_ADD_FRIEND = URL_SERVER + "/addfriend";
+        public static final String URL_SERVER = "http://120.24.76.148";
+        
+        public static final String URL_REGISTER = URL_SERVER + "/yaf/index.php/Register";
+        public static final String URL_LOGIN = URL_SERVER + "/yaf/index.php/Login";
+        public static final String URL_GET_SHORT_MSG = URL_SERVER + "/yaf/index.php/Getshortmsg";
+        public static final String URL_CHECK_PHONE_NUM = URL_SERVER + "/yaf/index.php/Checkphonenum";
+        public static final String URL_UPDATE_PASSWORD = URL_SERVER + "/yaf/index.php/Updatepassword";
+        
+        public static final String URL_CAMPUS_CODE = URL_SERVER + "/yaf/index.php/Campuscode"; 
+        public static final String URL_SCHOOL_INFO = URL_SERVER + "/yaf/index.php/Schoolinfo";
+        public static final String URL_UPDATE_MSG = URL_SERVER + "/yaf/index.php/Schoolmsg/updatemsg";
+        public static final String URL_DEL_MSG = URL_SERVER + "/yaf/index.php/Schoolmsg/delmsg";
+        public static final String URL_VERIFY = URL_SERVER + "*";
+        
+        public static final String URL_REPLY = URL_SERVER + "/yaf/index.php/Comments/reply";
+        
+        public static final String URL_DEL_COMMENT = URL_SERVER + "/yaf/index.php/Comments/delcomment";
+        public static final String URL_ADD_LIKE = URL_SERVER + "/yaf/index.php/Likes/addlike";
+        public static final String URL_FOLLOW = URL_SERVER + "/yaf/index.php/Relation/follow";
+        public static final String URL_CANCEL_FOLLOW = URL_SERVER + "/yaf/index.php/Relation/cancelfollow";
+        public static final String URL_SETREMARK = URL_SERVER + "/yaf/index.php/Relation/setremark";
+        
+        public static final String URL_SHIELDING = URL_SERVER + "/yaf/index.php/Relation/shielding";
+        public static final String URL_FOLLOWS_LIST = URL_SERVER + "/yaf/index.php/Followslist";
+        public static final String URL_FANS_LIST = URL_SERVER + "/yaf/index.php/Fanslist";
+        public static final String URL_GET_INFO = URL_SERVER + "/yaf/index.php/Getinfo";
+        public static final String URL_UPDATE_INFO = URL_SERVER + "/yaf/index.php/Userinfo/updateinfo";
+        
+        public static final String URL_BACK_STATE = URL_SERVER + "/yaf/index.php/Backstate";
+        public static final String URL_FEEDBACK = URL_SERVER + "/yaf/index.php/Feedback";
+        public static final String URL_NEARBY_USERS = URL_SERVER + "/yaf/index.php/Place/nearbyusers";
+        public static final String URL_SET_TOKEN = URL_SERVER + "/yaf/index.php/Push/Settoken";
+        public static final String URL_PUSH_MSG = URL_SERVER + "/yaf/index.php/Push/Pushmsg";
     }
 
     public static class ResultCode {
-        public static final int RESULT_OK = 0;
-        public static final int RESULT_DATA_INVALID = 102;
+        public static final int RESULT_SUCCESS = 20;
+        public static final int RESULT_FAILURE = 40;
     }
 }

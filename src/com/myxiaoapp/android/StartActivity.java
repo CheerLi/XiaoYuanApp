@@ -9,6 +9,8 @@ import android.widget.Toast;
 import com.myxiaoapp.utils.LocationHelper;
 import com.myxiaoapp.utils.LocationHelper.GetLocationListener;
 import com.myxiaoapp.utils.Utils;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.tencent.android.tpush.XGPushManager;
 
@@ -25,6 +27,8 @@ import com.tencent.android.tpush.XGPushManager;
  */
 public class StartActivity extends BaseActivity {
 	private static final String TAG = "mydebug";
+	private ImageLoader imageLoader;
+	private DisplayImageOptions options;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +38,14 @@ public class StartActivity extends BaseActivity {
 		mApp.addLaunchActivity(this);
 		// Utils.showProgressDialog(this, false);
 		Utils.initFaceMap();
-
+		imageLoader = ImageLoader.getInstance();
+		imageLoader.init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
+		options = new DisplayImageOptions.Builder().cacheInMemory(true)
+				.cacheOnDisk(true).build();
 		// test
 		// startActivity(new Intent(this, PushDemoActivity.class));
 		// finish();
- 
+		
 		startActivity(new Intent(this, LoginActivity.class));
 		finish();
 	}

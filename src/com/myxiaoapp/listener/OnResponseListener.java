@@ -16,7 +16,7 @@ public interface OnResponseListener {
 	/**
 	 * 返回正确数据
 	 */
-	void onReceiveSuccess(String rec, String id);
+	void onReceiveSuccess(String rec, final int id);
 
 	/*
 	 * 返回失败数据

@@ -173,7 +173,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/school_label"
-                    android:text="" />
+                    android:text="深圳大学" />
             </RelativeLayout>
 
             <!-- 下划线 -->
@@ -249,7 +249,7 @@
                         android:text=""
                         android:visibility="gone" />
 		
-                    <com.myxiaoapp.view.MyGridView
+                    <com.myxiaoapp.view.PersonGridView
                         android:id="@+id/gv_photo_mood"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"

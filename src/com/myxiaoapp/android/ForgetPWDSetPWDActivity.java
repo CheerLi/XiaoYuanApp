@@ -14,6 +14,9 @@ import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 
 public class ForgetPWDSetPWDActivity extends CommonActivity implements
 		OnClickListener, OnResponseListener {
@@ -68,8 +71,12 @@ public class ForgetPWDSetPWDActivity extends CommonActivity implements
 			Intent mIntent = getIntent();
 			String phoneNumber = mIntent.getStringExtra("phoneNumber");
 			String password = this.password.getText().toString();
-			new AsyncHttpPost("forgetPassword",this,phoneNumber, password).post();
-			
+			//new AsyncHttpPost("forgetPassword",this,phoneNumber, password).post();
+			new XYClient().post(
+					RequestId.ID_UPDATE_PASSWORD, 
+					RequestUrl.URL_UPDATE_PASSWORD, 
+					HttpRequestParams.setPasswordParams(phoneNumber, password), 
+					this);
 			mButton.setText("确认");
 		}
 
@@ -86,7 +93,7 @@ public class ForgetPWDSetPWDActivity extends CommonActivity implements
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String id, String rec) {
+	public void onReceiveSuccess(String rec, final int ID) {
 		Toast.makeText(ForgetPWDSetPWDActivity.this, "请用新密码登录",
 				Toast.LENGTH_LONG).show(); 
 		startActivity(new Intent(ForgetPWDSetPWDActivity.this,

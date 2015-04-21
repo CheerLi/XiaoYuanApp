@@ -33,16 +33,21 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
 import com.myxiaoapp.adapter.CampusNewsAdapter;
 import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.CampusCircleBean;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.model.MomentBean;
 import com.myxiaoapp.model.User;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
 import com.myxiaoapp.utils.ACache;
 import com.myxiaoapp.utils.CacheHelper;
 import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.JSONHelper;
 import com.myxiaoapp.utils.Utils;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -214,7 +219,15 @@ public class CampusNewsActivity extends CommonActivity implements
 		}
 		return true;
 	}
-
+	public void addLike(final String msg_id){
+	//	new AsyncHttpPost("addlike", this, v.getTag().toString(), XiaoYuanApp.getLoginUser(mContext).userBean.getUid()).post();
+		new XYClient().post(
+				RequestId.ID_ADD_LIKE, 
+				RequestUrl.URL_ADD_LIKE, 
+				HttpRequestParams.addLike(msg_id, XiaoYuanApp.getLoginUser(mContext).userBean.getUid()), 
+				this);
+		
+	}	
 	public void dialog(final String position){
 		final String mid = mAdapter.getItem(Integer.valueOf(position )).getM_id();
 		Log.d(TAG,"mid="+mid);
@@ -227,7 +240,12 @@ public class CampusNewsActivity extends CommonActivity implements
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 				mAdapter.remove(Integer.valueOf(position ));
-				new AsyncHttpPost("delmsg", CampusNewsActivity.this, mid, XiaoYuanApp.getLoginUser(CampusNewsActivity.this).userBean.getUid()).post();
+				//new AsyncHttpPost("delmsg", CampusNewsActivity.this, mid, XiaoYuanApp.getLoginUser(CampusNewsActivity.this).userBean.getUid()).post();
+				new XYClient().post(
+						RequestId.ID_DEL_MSG, 
+						RequestUrl.URL_DEL_MSG, 
+						HttpRequestParams.delMsg(mid, XiaoYuanApp.getLoginUser(CampusNewsActivity.this).userBean.getUid()), 
+						CampusNewsActivity.this);
 			}
 		});
 
@@ -275,10 +293,10 @@ public class CampusNewsActivity extends CommonActivity implements
 	 * String)
 	 */
 	@Override
-	public void onReceiveSuccess(final String rec,String id) {
+	public void onReceiveSuccess(final String rec,final int id) {
 		Log.d(TAG, "onReceiveSuccess"+id);
 		switch(id){
-		case "Schoolinfo": 
+		case RequestId.ID_SCHOOL_INFO: 
 					CampusCircleBean bean;
 					Gson gson = new Gson();
 					bean = gson.fromJson(rec, CampusCircleBean.class);
@@ -312,9 +330,9 @@ public class CampusNewsActivity extends CommonActivity implements
 					completeRefresh();
 					
 					break;
-		case "delmsg":
+		case RequestId.ID_DEL_MSG:
 			break; 
-		case "addlike":
+		case RequestId.ID_ADD_LIKE:
 			Log.d(TAG, "点赞成功");
 			break;
 		default:break;
@@ -337,22 +355,28 @@ public class CampusNewsActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-		if (mPullToRefreshListView.isHeaderShown()) { // 下拉
-		//	Utils.showProgressDialog(mContext, R.string.refreshing, true, cancelListener);
+		if (mPullToRefreshListView.isHeaderShown()) { // 下拉 
 			Log.d(TAG, "header");
 			ACache cache= CacheHelper.getCache(this, "Schoolinfo");
 			String maxId = cache.getAsString("maxId");
-			new AsyncHttpPost("Schoolinfo", this, ""	+ user.userBean.getUid(), username , maxId, "1", MAXPAGE).post();
-			
+		//	new AsyncHttpPost("Schoolinfo", this, ""+ user.userBean.getUid(), username , maxId, "1", MAXPAGE).post();
+			new XYClient().post(
+					RequestId.ID_SCHOOL_INFO, 
+					RequestUrl.URL_SCHOOL_INFO, 
+					HttpRequestParams.campusCircle(user.userBean.getUid(), username , maxId, "1", MAXPAGE), 
+					this);
 		} else if (mPullToRefreshListView.isFooterShown()) { // 上拉
-			Log.d(TAG, "footer");
-	//		Utils.showProgressDialog(mContext, R.string.loading, true, cancelListener);
+			Log.d(TAG, "footer"); 
 			ACache cache = CacheHelper.getCache(this, "Schoolinfo");
 			int minId = Integer.parseInt( cache.getAsString("minId") );
 			Log.d(TAG, "minId="+minId+",adapter id="+mAdapter.getMinId());
 			if(minId == mAdapter.getMinId()){
-			//	minId -- ;
-				new AsyncHttpPost("Schoolinfo", this, ""+ user.userBean.getUid(), username , minId+"", "2", MAXPAGE).post();
+			//	new AsyncHttpPost("Schoolinfo", this, ""+ user.userBean.getUid(), username , minId+"", "2", MAXPAGE).post();
+			new XYClient().post(
+					RequestId.ID_SCHOOL_INFO, 
+					RequestUrl.URL_SCHOOL_INFO, 
+					HttpRequestParams.campusCircle(user.userBean.getUid(), username , minId+"", "2", MAXPAGE),
+					this);
 			}else {
 				List<MomentBean> beanList = readCache(minId);
 				mAdapter.addFootData(beanList);
@@ -402,7 +426,12 @@ public class CampusNewsActivity extends CommonActivity implements
 		Log.d(TAG, "onResume");
 		mAdapter.clear();
 		mAdapter.notifyDataSetChanged();
-		new AsyncHttpPost("Schoolinfo", this, ""	+ user.userBean.getUid(), username , null, null, MAXPAGE).post();
+		//new AsyncHttpPost("Schoolinfo", this, ""	+ user.userBean.getUid(), username , null, null, MAXPAGE).post();
+		new XYClient().post(
+				RequestId.ID_SCHOOL_INFO, 
+				RequestUrl.URL_SCHOOL_INFO,
+				HttpRequestParams.campusCircle(user.userBean.getUid(), username , null, null, MAXPAGE), 
+				this);
 	}
 	
 	/* 

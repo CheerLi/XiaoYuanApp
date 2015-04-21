@@ -145,8 +145,7 @@ public class HttpRequestParams {
 
 	}
 
-	/**
-	 * 拉取学校验证码接口
+	/* 
 	 * 
 	 * @param phone
 	 * @return
@@ -417,6 +416,17 @@ public class HttpRequestParams {
 		params.put("sign", sign);
 		return params;
 	}
+	/**
+	 * 
+	 */
+	public static RequestParams setToken(String user_id, String token){
+		RequestParams params = getBaseParams();
+		params.put("user_id", user_id);
+		params.put("token", token);
+		String sign = getSignByMd5(params);
+		params.put("sign", sign);
+		return params;
+	}
 
 	/**
 	 * 发布校园消息接口参数
@@ -461,7 +471,7 @@ public class HttpRequestParams {
 		return params;
 	}
 	
-	public static RequestParams updateinfo(String user_id, String insert_count, List<String> picList, String del_pictures,
+	public static RequestParams updateinfo(String user_id, String insert_count, String picList, String del_pictures,
 			String nick_name, String moto, String affective){
 		RequestParams params = getBaseParams();
 		params.put("user_id", user_id);
@@ -522,11 +532,15 @@ public class HttpRequestParams {
 	 * @throws UnsupportedEncodingException
 	 */
 	public static RequestParams reply(String msg_id, String comment,
-			String user_id, String commented_uid)
-			throws UnsupportedEncodingException {
+			String user_id, String commented_uid) {
 		RequestParams params = getBaseParams();
 		params.put("msg_id", msg_id);
-		params.put("comment", URLEncoder.encode(comment, Constant.charSet));
+		try {
+			params.put("comment", URLEncoder.encode(comment, Constant.charSet));
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		}
 		params.put("user_id", user_id);
 		params.put("commented_uid", commented_uid);
 		String sign = getSignByMd5(params);
@@ -568,6 +582,30 @@ public class HttpRequestParams {
 		params.put("user_id", user_id);
 		String sign = getSignByMd5(params);
 		params.put("sign", sign);
+		return params;
+	}
+
+	/**
+	 * @param myId
+	 * @param otherId
+	 * @param message
+	 * @param myName
+	 * @param otherName
+	 * @param myPortraitUrl
+	 * @param token
+	 * @return
+	 */
+	public static RequestParams getPushChat(String fromUserId, String toUserId,
+			String message, String fromName, String toName,
+			String fromPortrait, String token) {
+		RequestParams params = getBaseParams();
+		params.put("fromUserId", fromUserId);
+		params.put("toUserId", toUserId);
+		params.put("message", message);
+		params.put("fromName", fromName);
+		params.put("toName", toName);
+		params.put("fromPortrait", fromPortrait);
+		params.put("token", token);
 		return params;
 	}
 

@@ -13,6 +13,7 @@
         android:drawableRight="@drawable/icon_search"
         android:hint="@string/search"
         android:inputType="text"
+        android:visibility="gone"
         android:textSize="12sp" />
 
     <ListView

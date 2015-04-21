@@ -23,8 +23,12 @@ import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.FansListBean;
 import com.myxiaoapp.model.FocusFansBean;
 import com.myxiaoapp.model.FocusListBean;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.UserInfoBean;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.JSONHelper;
 import com.myxiaoapp.utils.Utils;
 
@@ -57,7 +61,6 @@ public class PersonListActivity extends CommonActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_person_list);
-		setActionBarTitle("粉丝/关注");
 		mPersonsList = (ListView) findViewById(R.id.lv_person);
 		mPersonsList.setOnItemClickListener(this);
 		PersonAdapter adapter = new PersonAdapter(this);
@@ -67,7 +70,11 @@ public class PersonListActivity extends CommonActivity implements
 		user_id = intent.getStringExtra("user_id");
 		follow_id = intent.getStringExtra("follow_id");
 		flag = intent.getFlags();// 0表示显示粉丝， 1表示显示关注
-
+		if( flag == 0){
+			setActionBarTitle("粉丝");
+		}else{
+			setActionBarTitle("关注");
+		}
 		if (TextUtils.isEmpty(user_id) || TextUtils.isEmpty(follow_id)) {
 			throw new IllegalArgumentException(
 					"you should pass the user_id and follow_id to PersonListActivity");
@@ -78,13 +85,23 @@ public class PersonListActivity extends CommonActivity implements
 
 	private void request() {
 		if (flag == 0) {
-			AsyncHttpPost fansList = new AsyncHttpPost("Fanslist", this,
-					user_id, follow_id, DEFAULT_PAGE_SIZE + "");
-			fansList.post();
+//			AsyncHttpPost fansList = new AsyncHttpPost("Fanslist", this,
+//					user_id, follow_id, DEFAULT_PAGE_SIZE + "");
+//			fansList.post();
+			new XYClient().post(
+					RequestId.ID_FANS_LIST, 
+					RequestUrl.URL_FANS_LIST, 
+					HttpRequestParams.fansListParams(user_id, follow_id, DEFAULT_PAGE_SIZE + ""), 
+					this);
 		} else if (flag == 1) {
-			AsyncHttpPost focusList = new AsyncHttpPost("Followslist", this,
-					user_id, follow_id, DEFAULT_PAGE_SIZE + "");
-			focusList.post();
+//			AsyncHttpPost focusList = new AsyncHttpPost("Followslist", this,
+//					user_id, follow_id, DEFAULT_PAGE_SIZE + "");
+//			focusList.post();
+			new XYClient().post(
+					RequestId.ID_FOLLOWS_LIST, 
+					RequestUrl.URL_FOLLOWS_LIST, 
+					HttpRequestParams.focusListParams(user_id, follow_id, DEFAULT_PAGE_SIZE + ""), 
+					this);
 		}
 		
 		//test interface
@@ -122,14 +139,14 @@ public class PersonListActivity extends CommonActivity implements
 	 * String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec, String id) {
+	public void onReceiveSuccess(String rec, final int ID) {
 
 		Utils.dismissProgressDialog();
 		Log.d(TAG,rec);
 		Gson gson = new Gson();
-		switch(id){
-		case "Fanslist":
-		case "Followslist":
+		switch(ID){
+		case RequestId.ID_FANS_LIST:
+		case RequestId.ID_FOLLOWS_LIST:
 			if (flag == 0) { 
 				fansBean = (FansListBean) gson.fromJson(rec, FansListBean.class);
 			} else if (flag == 1) {
@@ -137,7 +154,7 @@ public class PersonListActivity extends CommonActivity implements
 			}
 			updateUI();
 			break;
-		case "Getinfo":
+		case RequestId.ID_GET_INFO:
 			Log.d(TAG, "GetInfo");
 			UserInfoBean userInfoBean = gson.fromJson(rec, UserInfoDataBean.class).getData();
 			Intent intent = new Intent(this, HomePageActivity.class); 
@@ -172,9 +189,13 @@ public class PersonListActivity extends CommonActivity implements
 			bean = focusBean.data.get(position);
 		}
 		String uid = bean.getUid();
-		new AsyncHttpPost("Getinfo", this,XiaoYuanApp.getLoginUser(this).userBean.getUid(), uid)
-		.post();
-
+//		new AsyncHttpPost("Getinfo", this,XiaoYuanApp.getLoginUser(this).userBean.getUid(), uid)
+//		.post();
+		new XYClient().post(
+				RequestId.ID_GET_INFO,  
+				RequestUrl.URL_GET_INFO, 
+				HttpRequestParams.getUserInfoParams(XiaoYuanApp.getLoginUser(this).userBean.getUid(), uid), 
+				this);
 	}
 
 }

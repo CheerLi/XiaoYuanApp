@@ -42,14 +42,20 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.myxiaoapp.adapter.ChatMsgAdapter; 
+import com.myxiaoapp.listener.OnResponseListener;
 import com.myxiaoapp.model.BaseModel; 
 import com.myxiaoapp.model.ChatItem; 
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.User;
+import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.network.HttpRequestParam;
+import com.myxiaoapp.network.XYClient;
 import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.utils.DataBaseHelper;
 import com.myxiaoapp.utils.DataManager;
 import com.myxiaoapp.utils.SQLiteHelper;
+import com.myxiaoapp.utils.Constant.RequestId;
 import com.myxiaoapp.view.ExpressionPanel;
 import com.myxiaoapp.view.ExpressionPanel.OnExpressionClickListener;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -65,7 +71,7 @@ import com.tencent.android.tpush.XGPushShowedResult;
 import com.tencent.android.tpush.XGPushTextMessage;
 
 public class ChatPanelActivity extends CommonActivity implements
-		OnClickListener, OnTouchListener, OnExpressionClickListener  {
+		OnClickListener, OnTouchListener, OnExpressionClickListener, OnResponseListener  {
 	public static final String ACTION_RECEIVE_CHAT = "com.myxiaoapp.android.CharPanelActivity";
 	private static final String TAG = "mydebug";
 
@@ -192,7 +198,7 @@ public class ChatPanelActivity extends CommonActivity implements
 				readHistory();
 				registerReceiver();
 				if(message != null){
-					addChatItem();
+					addChatItem(getIntent());
 					
 				}
 			}
@@ -202,8 +208,9 @@ public class ChatPanelActivity extends CommonActivity implements
 		public void onLoadingCancelled(String imageUri, View view) {
 		}
 	};
-	private void addChatItem(){
-		String data = getIntent().getStringExtra("data"); 
+	private void addChatItem(Intent intent){
+		String data = intent.getStringExtra("data"); 
+		Log.d(TAG, "data="+data);
 		mAdapter.addChatItem(ChatItem.json2ChatItem(data));
         scrollListViewToBottom();
 	}
@@ -285,24 +292,31 @@ public class ChatPanelActivity extends CommonActivity implements
     private void sendMessage() {
         myToSendMessage = mInputText.getText().toString();
         mInputText.setText("");
-        sendHttpRequest(Constant.RequestId.ID_CHAT); 
+        sendHttpRequest();
         ChatItem item = new ChatItem();
-        item.setFromUserId(XiaoYuanApp.getLoginUser(this).userBean.getUid());
-        item.setFromUserName(XiaoYuanApp.getLoginUser(this).userBean.getUsername());
+        item.setFromUserId(myId);
+        item.setFromUserName(myName);
         item.setToUserId(otherId);
         item.setToUserName(otherName); 
         item.setIsMeChat(true);
         item.setMessage(myToSendMessage);
+        item.setmPortrait(myPortraitUrl);
+        item.setFromPortrait(otherPortraitUrl);
         item.setTime(System.currentTimeMillis());
         
-        item.setmPortrait(myPortraitMap);
+       // item.setmPortrait(myPortraitMap);
         mAdapter.addChatItem(item);
         DataBaseHelper.saveChat(item);
         scrollListViewToBottom();
     }
     
-    public void sendHttpRequest(final int requestId) {
-       
+    public void sendHttpRequest() {
+   // 	new AsyncHttpPost("Pushchat", this, myId, otherId, myToSendMessage, myName, otherName, myPortraitUrl, XGPushConfig.getToken(this)).post();
+    	new XYClient().post(
+    			RequestId.ID_PUSH_MSG, 
+    			RequestUrl.URL_PUSH_MSG, 
+    			HttpRequestParams.getPushChat(myId, otherId, myToSendMessage, myName, otherName, myPortraitUrl, XGPushConfig.getToken(this)),
+    			this);
     }
     private void scrollListViewToBottom() { 
     	mChatList.post(new Runnable() {
@@ -312,44 +326,13 @@ public class ChatPanelActivity extends CommonActivity implements
             }
         });
     }
-    
-    
-    public HttpRequestParam makeParam(int requestId) {
-        HttpRequestParam hrp = null;
-        switch (requestId) {
-            case Constant.RequestId.ID_CHAT:
-                hrp = new HttpRequestParam(Constant.RequestUrl.URL_CHAT, BaseModel.class);
-                hrp.addParam("fromUserId", XiaoYuanApp.getLoginUser(this).userBean.getUid());
-                hrp.addParam("toUserId", otherId);
-                hrp.addParam("fromName", XiaoYuanApp.getLoginUser(this).userBean.getUsername());
-                hrp.addParam("toName", otherName);
-                hrp.addParam("fromPortrait", otherPortraitUrl);
-                hrp.addParam("token", XGPushConfig.getToken(this));
-                hrp.addParam("message", myToSendMessage);
-                
-                break;
-        }
-        return hrp;
-    }
- 
-    public void dataReceived(int requestId, BaseModel response) {
-        switch (requestId) {
-            case Constant.RequestId.ID_CHAT:
-                if (response != null && response.getResultCode() == Constant.ResultCode.RESULT_OK) {
-                    Log.d(TAG,"发送成功");
-                } else {
-                	Log.d(TAG,"发送失败");
-                    Toast.makeText(this, "发送失败", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
+     
 
     public BroadcastReceiver mChatReceiver = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			addChatItem(); 
+			addChatItem(intent); 
 		}
     	
     };
@@ -367,6 +350,27 @@ public class ChatPanelActivity extends CommonActivity implements
 	 */
 	@Override
 	public void onExpressionClick(int resId, String str) {
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onFailure(int)
+	 */
+	@Override
+	public void onFailure(int statusCode) {
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void onReceiveSuccess(String rec, final int id) {
+	}
+
+	/* 
+	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveFailure(java.lang.String)
+	 */
+	@Override
+	public void onReceiveFailure(String rec) {
 	}
 	
  

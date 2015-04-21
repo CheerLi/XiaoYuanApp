@@ -28,6 +28,9 @@ import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.model.RegisterInfo;
 import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.network.SingleAsyncClient;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 
 /**
  * @author ken
@@ -54,13 +57,14 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 		getVerifyCode();
 	}
 
-	private void getVerifyCode() {
-		/*
-		 * 手机账号验证接口，后台还没做
-		 */
+	private void getVerifyCode() { 
 		String phone = getIntent().getStringExtra("phone");
-		new AsyncHttpPost("Getshortmsg",this,phone).post();
-		
+	//	new AsyncHttpPost("Getshortmsg",this,phone).post();
+		new XYClient().post(
+				RequestId.ID_GET_SHORT_MSG, 
+				RequestUrl.URL_GET_SHORT_MSG, 
+				HttpRequestParams.getVerifyParams(phone), 
+				this);
 	}
 
 	private void init() {
@@ -108,7 +112,7 @@ public class RegisterInputVerifyActivity extends CommonActivity implements
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec, String id) {
+	public void onReceiveSuccess(String rec, final int ID) {
 		Log.d(TAG, "rec="+rec);
 		try {
 			JSONObject jo = new JSONObject(rec);

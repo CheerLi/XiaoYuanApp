@@ -3,6 +3,9 @@ package com.myxiaoapp.android;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,9 +22,17 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.myxiaoapp.listener.OnResponseListener;
+import com.myxiaoapp.model.HttpRequestParams;
 import com.myxiaoapp.model.RegisterInfo;
+import com.myxiaoapp.model.UserBean;
 import com.myxiaoapp.network.AsyncHttpPost;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 import com.myxiaoapp.view.CircleImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -150,8 +161,12 @@ public class RegisterDetailActivity extends CommonActivity implements
 				String pwd = password.getText().toString(); // 密码
 				RegisterInfo.setDetail(headPhotUri, sex,RegisterInfo.getPhone(), pwd, usr);// 把注册信息加载到静态注册信息类中
 
-				new AsyncHttpPost("Register", this).post();
-
+				//new AsyncHttpPost("Register", this).post();
+				new XYClient().post(
+						RequestId.ID_REGISTER, 
+						RequestUrl.URL_REGISTER, 
+						HttpRequestParams.registerParams(), 
+						this);
 				// AsyncHttpClient client = new AsyncHttpClient();
 				// final HttpResponseHandler responseHandler = new
 				// HttpResponseHandler();
@@ -219,7 +234,19 @@ public class RegisterDetailActivity extends CommonActivity implements
 	 * String)
 	 */
 	@Override
-	public void onReceiveSuccess(String rec, String id) {
+	public void onReceiveSuccess(String rec, final int ID) {
+		Gson gson = new Gson();
+		UserBean userBean = null;
+		try {
+			userBean = gson.fromJson(new JSONObject(rec).getJSONObject("data").toString(), UserBean.class);
+			XiaoYuanApp mApp = (XiaoYuanApp) getApplication();
+			mApp.setLoginUser(userBean);
+			mApp.saveInfo(userBean, Constant.SHARE_PRE_LOGIN_INFO);
+		} catch (JsonSyntaxException | JSONException e) {
+			
+			e.printStackTrace();
+		}
+			
 		startActivity(new Intent(this, RegisterSuccessActivity.class));
 		finish();
 	}

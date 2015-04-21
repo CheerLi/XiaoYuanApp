@@ -12,6 +12,9 @@ import com.myxiaoapp.model.HttpResponseHandler;
 import com.myxiaoapp.model.RegisterInfo;
 import com.myxiaoapp.network.AsyncHttpPost;
 import com.myxiaoapp.network.SingleAsyncClient;
+import com.myxiaoapp.network.XYClient;
+import com.myxiaoapp.utils.Constant.RequestId;
+import com.myxiaoapp.utils.Constant.RequestUrl;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -67,7 +70,12 @@ public class VerifyActivity extends CommonActivity implements OnClickListener, O
 	}
 
 	private void getVerifyImage() {
-		new AsyncHttpPost("CampusCode", this, RegisterInfo.getPhone()).post();
+		//new AsyncHttpPost("CampusCode", this, RegisterInfo.getPhone()).post();
+		new XYClient().post(
+				RequestId.ID_CAMPUS_CODE, 
+				RequestUrl.URL_CAMPUS_CODE, 
+				HttpRequestParams.getVerifyParams(RegisterInfo.getPhone()), 
+				this);
 	}
 
 	private boolean check(String student_code, String student_pwd,
@@ -86,7 +94,12 @@ public class VerifyActivity extends CommonActivity implements OnClickListener, O
 	}
 
 	private void verify(String student_code, String student_pwd, String verify_code) {
-		new AsyncHttpPost("*", this,student_code.toString(), student_pwd.toString(),verify_code.toString()).post();
+		//new AsyncHttpPost("*", this,student_code.toString(), student_pwd.toString(),verify_code.toString()).post();
+//		new XYClient().post(
+//				RequestId.ID_VERIFY, 
+//				RequestUrl.URL_VERIFY, 
+//				null, 
+//				this);
 	}
 
 	@Override
@@ -119,10 +132,10 @@ public class VerifyActivity extends CommonActivity implements OnClickListener, O
 	 * @see com.myxiaoapp.listener.OnResponseListener#onReceiveSuccess(java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void onReceiveSuccess(String id, String rec) {
-		switch(id){
-		case "verifyImage":
-			byte[] img = id.getBytes();
+	public void onReceiveSuccess(String rec, final int ID) {
+		switch(ID){
+		case 0:
+			byte[] img = rec.getBytes();
 			Bitmap bm = BitmapFactory.decodeByteArray(img, 0,
 					img.length);
 			mVerifyImage.setImageBitmap(bm);
@@ -130,16 +143,21 @@ public class VerifyActivity extends CommonActivity implements OnClickListener, O
 			mVerifySubmit
 					.setBackgroundResource(R.drawable.bg_verify_button);
 			break;
-		case "Campuscode":
+		case RequestId.ID_CAMPUS_CODE:
 			try {
 				JSONObject jo = new JSONObject(rec);
 				String picUrl = jo.getString("img_url").toString();
-				new AsyncHttpPost("verifyImage", this, picUrl).post();
+				//new AsyncHttpPost("verifyImage", this, picUrl).post();
+				new XYClient().post(
+						0, 
+						picUrl, 
+						null, 
+						this);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			} 
 			break;
-		case "*":
+		case RequestId.ID_VERIFY:
 			try {
 				JSONObject jo = new JSONObject(rec);
 				if (jo.getString("errno").equals("20")) {
